@@ -1,0 +1,1057 @@
+import { StyleSheet, Text, View,Image, ScrollView, FlatList, TouchableOpacity } from 'react-native'
+import { Ionicons } from '@expo/vector-icons';
+import { use, useState } from 'react';
+import React from 'react'
+import _ from 'lodash';
+import { Link } from 'expo-router';
+
+
+export const LeagueTable = () => {
+    const [standings, setStandings] = useState([
+  {
+    rank: 1,
+    team: {
+      id: 40,
+      name: "Liverpool",
+      logo: "https://media.api-sports.io/football/teams/40.png"
+    },
+    points: 84,
+    goalsDiff: 45,
+    group: "Premier League",
+    form: "DLDLW",
+    status: "same",
+    description: "Champions League",
+    all: {
+      played: 38,
+      win: 25,
+      draw: 9,
+      lose: 4,
+      goals: {
+        for: 86,
+        against: 41
+      }
+    },
+    home: {
+      played: 19,
+      win: 14,
+      draw: 4,
+      lose: 1,
+      goals: {
+        for: 42,
+        against: 16
+      }
+    },
+    away: {
+      played: 19,
+      win: 11,
+      draw: 5,
+      lose: 3,
+      goals: {
+        for: 44,
+        against: 25
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 2,
+    team: {
+      id: 42,
+      name: "Arsenal",
+      logo: "https://media.api-sports.io/football/teams/42.png"
+    },
+    points: 74,
+    goalsDiff: 35,
+    group: "Premier League",
+    form: "WWDLD",
+    status: "same",
+    description: "Champions League",
+    all: {
+      played: 38,
+      win: 20,
+      draw: 14,
+      lose: 4,
+      goals: {
+        for: 69,
+        against: 34
+      }
+    },
+    home: {
+      played: 19,
+      win: 11,
+      draw: 6,
+      lose: 2,
+      goals: {
+        for: 35,
+        against: 17
+      }
+    },
+    away: {
+      played: 19,
+      win: 9,
+      draw: 8,
+      lose: 2,
+      goals: {
+        for: 34,
+        against: 17
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 3,
+    team: {
+      id: 50,
+      name: "Manchester City",
+      logo: "https://media.api-sports.io/football/teams/50.png"
+    },
+    points: 71,
+    goalsDiff: 28,
+    group: "Premier League",
+    form: "WWDWW",
+    status: "same",
+    description: "Champions League",
+    all: {
+      played: 38,
+      win: 21,
+      draw: 8,
+      lose: 9,
+      goals: {
+        for: 72,
+        against: 44
+      }
+    },
+    home: {
+      played: 19,
+      win: 13,
+      draw: 3,
+      lose: 3,
+      goals: {
+        for: 43,
+        against: 23
+      }
+    },
+    away: {
+      played: 19,
+      win: 8,
+      draw: 5,
+      lose: 6,
+      goals: {
+        for: 29,
+        against: 21
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 4,
+    team: {
+      id: 49,
+      name: "Chelsea",
+      logo: "https://media.api-sports.io/football/teams/49.png"
+    },
+    points: 69,
+    goalsDiff: 21,
+    group: "Premier League",
+    form: "WWLWW",
+    status: "same",
+    description: "Champions League",
+    all: {
+      played: 38,
+      win: 20,
+      draw: 9,
+      lose: 9,
+      goals: {
+        for: 64,
+        against: 43
+      }
+    },
+    home: {
+      played: 19,
+      win: 12,
+      draw: 5,
+      lose: 2,
+      goals: {
+        for: 35,
+        against: 18
+      }
+    },
+    away: {
+      played: 19,
+      win: 8,
+      draw: 4,
+      lose: 7,
+      goals: {
+        for: 29,
+        against: 25
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 5,
+    team: {
+      id: 34,
+      name: "Newcastle",
+      logo: "https://media.api-sports.io/football/teams/34.png"
+    },
+    points: 66,
+    goalsDiff: 21,
+    group: "Premier League",
+    form: "LLWDW",
+    status: "same",
+    description: "Champions League",
+    all: {
+      played: 38,
+      win: 20,
+      draw: 6,
+      lose: 12,
+      goals: {
+        for: 68,
+        against: 47
+      }
+    },
+    home: {
+      played: 19,
+      win: 12,
+      draw: 2,
+      lose: 5,
+      goals: {
+        for: 40,
+        against: 20
+      }
+    },
+    away: {
+      played: 19,
+      win: 8,
+      draw: 4,
+      lose: 7,
+      goals: {
+        for: 28,
+        against: 27
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 6,
+    team: {
+      id: 66,
+      name: "Aston Villa",
+      logo: "https://media.api-sports.io/football/teams/66.png"
+    },
+    points: 66,
+    goalsDiff: 7,
+    group: "Premier League",
+    form: "LWWWL",
+    status: "same",
+    description: "UEFA Europa League",
+    all: {
+      played: 38,
+      win: 19,
+      draw: 9,
+      lose: 10,
+      goals: {
+        for: 58,
+        against: 51
+      }
+    },
+    home: {
+      played: 19,
+      win: 11,
+      draw: 7,
+      lose: 1,
+      goals: {
+        for: 34,
+        against: 20
+      }
+    },
+    away: {
+      played: 19,
+      win: 8,
+      draw: 2,
+      lose: 9,
+      goals: {
+        for: 24,
+        against: 31
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 7,
+    team: {
+      id: 65,
+      name: "Nottingham Forest",
+      logo: "https://media.api-sports.io/football/teams/65.png"
+    },
+    points: 65,
+    goalsDiff: 12,
+    group: "Premier League",
+    form: "LWDDL",
+    status: "same",
+    description: "Conference League Qualification",
+    all: {
+      played: 38,
+      win: 19,
+      draw: 8,
+      lose: 11,
+      goals: {
+        for: 58,
+        against: 46
+      }
+    },
+    home: {
+      played: 19,
+      win: 9,
+      draw: 5,
+      lose: 5,
+      goals: {
+        for: 26,
+        against: 16
+      }
+    },
+    away: {
+      played: 19,
+      win: 10,
+      draw: 3,
+      lose: 6,
+      goals: {
+        for: 32,
+        against: 30
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 8,
+    team: {
+      id: 51,
+      name: "Brighton",
+      logo: "https://media.api-sports.io/football/teams/51.png"
+    },
+    points: 61,
+    goalsDiff: 7,
+    group: "Premier League",
+    form: "WWWDW",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 16,
+      draw: 13,
+      lose: 9,
+      goals: {
+        for: 66,
+        against: 59
+      }
+    },
+    home: {
+      played: 19,
+      win: 8,
+      draw: 8,
+      lose: 3,
+      goals: {
+        for: 30,
+        against: 26
+      }
+    },
+    away: {
+      played: 19,
+      win: 8,
+      draw: 5,
+      lose: 6,
+      goals: {
+        for: 36,
+        against: 33
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 9,
+    team: {
+      id: 35,
+      name: "Bournemouth",
+      logo: "https://media.api-sports.io/football/teams/35.png"
+    },
+    points: 56,
+    goalsDiff: 12,
+    group: "Premier League",
+    form: "WLLWD",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 15,
+      draw: 11,
+      lose: 12,
+      goals: {
+        for: 58,
+        against: 46
+      }
+    },
+    home: {
+      played: 19,
+      win: 8,
+      draw: 4,
+      lose: 7,
+      goals: {
+        for: 23,
+        against: 16
+      }
+    },
+    away: {
+      played: 19,
+      win: 7,
+      draw: 7,
+      lose: 5,
+      goals: {
+        for: 35,
+        against: 30
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 10,
+    team: {
+      id: 55,
+      name: "Brentford",
+      logo: "https://media.api-sports.io/football/teams/55.png"
+    },
+    points: 56,
+    goalsDiff: 9,
+    group: "Premier League",
+    form: "DLWWW",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 16,
+      draw: 8,
+      lose: 14,
+      goals: {
+        for: 66,
+        against: 57
+      }
+    },
+    home: {
+      played: 19,
+      win: 9,
+      draw: 4,
+      lose: 6,
+      goals: {
+        for: 40,
+        against: 35
+      }
+    },
+    away: {
+      played: 19,
+      win: 7,
+      draw: 4,
+      lose: 8,
+      goals: {
+        for: 26,
+        against: 22
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 11,
+    team: {
+      id: 36,
+      name: "Fulham",
+      logo: "https://media.api-sports.io/football/teams/36.png"
+    },
+    points: 54,
+    goalsDiff: 0,
+    group: "Premier League",
+    form: "LWLLW",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 15,
+      draw: 9,
+      lose: 14,
+      goals: {
+        for: 54,
+        against: 54
+      }
+    },
+    home: {
+      played: 19,
+      win: 7,
+      draw: 5,
+      lose: 7,
+      goals: {
+        for: 27,
+        against: 30
+      }
+    },
+    away: {
+      played: 19,
+      win: 8,
+      draw: 4,
+      lose: 7,
+      goals: {
+        for: 27,
+        against: 24
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 12,
+    team: {
+      id: 52,
+      name: "Crystal Palace",
+      logo: "https://media.api-sports.io/football/teams/52.png"
+    },
+    points: 53,
+    goalsDiff: 0,
+    group: "Premier League",
+    form: "DWWDD",
+    status: "same",
+    description: "UEFA Europa League",
+    all: {
+      played: 38,
+      win: 13,
+      draw: 14,
+      lose: 11,
+      goals: {
+        for: 51,
+        against: 51
+      }
+    },
+    home: {
+      played: 19,
+      win: 6,
+      draw: 7,
+      lose: 6,
+      goals: {
+        for: 24,
+        against: 26
+      }
+    },
+    away: {
+      played: 19,
+      win: 7,
+      draw: 7,
+      lose: 5,
+      goals: {
+        for: 27,
+        against: 25
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 13,
+    team: {
+      id: 45,
+      name: "Everton",
+      logo: "https://media.api-sports.io/football/teams/45.png"
+    },
+    points: 48,
+    goalsDiff: -2,
+    group: "Premier League",
+    form: "WWWDL",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 11,
+      draw: 15,
+      lose: 12,
+      goals: {
+        for: 42,
+        against: 44
+      }
+    },
+    home: {
+      played: 19,
+      win: 5,
+      draw: 9,
+      lose: 5,
+      goals: {
+        for: 26,
+        against: 23
+      }
+    },
+    away: {
+      played: 19,
+      win: 6,
+      draw: 6,
+      lose: 7,
+      goals: {
+        for: 16,
+        against: 21
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 14,
+    team: {
+      id: 48,
+      name: "West Ham",
+      logo: "https://media.api-sports.io/football/teams/48.png"
+    },
+    points: 43,
+    goalsDiff: -16,
+    group: "Premier League",
+    form: "WLWDL",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 11,
+      draw: 10,
+      lose: 17,
+      goals: {
+        for: 46,
+        against: 62
+      }
+    },
+    home: {
+      played: 19,
+      win: 5,
+      draw: 5,
+      lose: 9,
+      goals: {
+        for: 23,
+        against: 34
+      }
+    },
+    away: {
+      played: 19,
+      win: 6,
+      draw: 5,
+      lose: 8,
+      goals: {
+        for: 23,
+        against: 28
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 15,
+    team: {
+      id: 33,
+      name: "Manchester United",
+      logo: "https://media.api-sports.io/football/teams/33.png"
+    },
+    points: 42,
+    goalsDiff: -10,
+    group: "Premier League",
+    form: "WLLLD",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 11,
+      draw: 9,
+      lose: 18,
+      goals: {
+        for: 44,
+        against: 54
+      }
+    },
+    home: {
+      played: 19,
+      win: 7,
+      draw: 3,
+      lose: 9,
+      goals: {
+        for: 23,
+        against: 28
+      }
+    },
+    away: {
+      played: 19,
+      win: 4,
+      draw: 6,
+      lose: 9,
+      goals: {
+        for: 21,
+        against: 26
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 16,
+    team: {
+      id: 39,
+      name: "Wolves",
+      logo: "https://media.api-sports.io/football/teams/39.png"
+    },
+    points: 42,
+    goalsDiff: -15,
+    group: "Premier League",
+    form: "DLLLW",
+    status: "same",
+    description: null,
+    all: {
+      played: 38,
+      win: 12,
+      draw: 6,
+      lose: 20,
+      goals: {
+        for: 54,
+        against: 69
+      }
+    },
+    home: {
+      played: 19,
+      win: 6,
+      draw: 3,
+      lose: 10,
+      goals: {
+        for: 27,
+        against: 32
+      }
+    },
+    away: {
+      played: 19,
+      win: 6,
+      draw: 3,
+      lose: 10,
+      goals: {
+        for: 27,
+        against: 37
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 17,
+    team: {
+      id: 47,
+      name: "Tottenham",
+      logo: "https://media.api-sports.io/football/teams/47.png"
+    },
+    points: 38,
+    goalsDiff: -1,
+    group: "Premier League",
+    form: "LLLDL",
+    status: "same",
+    description: "Champions League",
+    all: {
+      played: 38,
+      win: 11,
+      draw: 5,
+      lose: 22,
+      goals: {
+        for: 64,
+        against: 65
+      }
+    },
+    home: {
+      played: 19,
+      win: 6,
+      draw: 3,
+      lose: 10,
+      goals: {
+        for: 35,
+        against: 35
+      }
+    },
+    away: {
+      played: 19,
+      win: 5,
+      draw: 2,
+      lose: 12,
+      goals: {
+        for: 29,
+        against: 30
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 18,
+    team: {
+      id: 46,
+      name: "Leicester",
+      logo: "https://media.api-sports.io/football/teams/46.png"
+    },
+    points: 25,
+    goalsDiff: -47,
+    group: "Premier League",
+    form: "LWDWL",
+    status: "same",
+    description: "Relegation",
+    all: {
+      played: 38,
+      win: 6,
+      draw: 7,
+      lose: 25,
+      goals: {
+        for: 33,
+        against: 80
+      }
+    },
+    home: {
+      played: 19,
+      win: 4,
+      draw: 3,
+      lose: 12,
+      goals: {
+        for: 15,
+        against: 34
+      }
+    },
+    away: {
+      played: 19,
+      win: 2,
+      draw: 4,
+      lose: 13,
+      goals: {
+        for: 18,
+        against: 46
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 19,
+    team: {
+      id: 57,
+      name: "Ipswich",
+      logo: "https://media.api-sports.io/football/teams/57.png"
+    },
+    points: 22,
+    goalsDiff: -46,
+    group: "Premier League",
+    form: "LLLDL",
+    status: "same",
+    description: "Relegation",
+    all: {
+      played: 38,
+      win: 4,
+      draw: 10,
+      lose: 24,
+      goals: {
+        for: 36,
+        against: 82
+      }
+    },
+    home: {
+      played: 19,
+      win: 1,
+      draw: 4,
+      lose: 14,
+      goals: {
+        for: 14,
+        against: 44
+      }
+    },
+    away: {
+      played: 19,
+      win: 3,
+      draw: 6,
+      lose: 10,
+      goals: {
+        for: 22,
+        against: 38
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  },
+  {
+    rank: 20,
+    team: {
+      id: 41,
+      name: "Southampton",
+      logo: "https://media.api-sports.io/football/teams/41.png"
+    },
+    points: 12,
+    goalsDiff: -60,
+    group: "Premier League",
+    form: "LLDLL",
+    status: "same",
+    description: "Relegation",
+    all: {
+      played: 38,
+      win: 2,
+      draw: 6,
+      lose: 30,
+      goals: {
+        for: 26,
+        against: 86
+      }
+    },
+    home: {
+      played: 19,
+      win: 1,
+      draw: 3,
+      lose: 15,
+      goals: {
+        for: 13,
+        against: 47
+      }
+    },
+    away: {
+      played: 19,
+      win: 1,
+      draw: 3,
+      lose: 15,
+      goals: {
+        for: 13,
+        against: 39
+      }
+    },
+    update: "2025-05-26T00:00:00+00:00"
+  }
+])
+  const [direction , setDirection] = useState(null);
+  const [selectedColumn, setSelectedColumn] = useState(null);
+    const qualificationColor = (description) =>{
+        if(description === "Champions League") return "#009DFF"
+        if(description === "Relegation") return "red"
+        if(description === "UEFA Europa League") return "#FF8C00"
+        if(description === "Conference League Qualification") return "#00D613"
+
+        return ''
+    }
+    const renderHeader = () =>{
+        return(
+            <>
+            <View className='flex flex-row   items-center'>
+                <View style={{width: 5}} />
+                <View className='flex flex-row items-center p-3 gap-2'  >
+                <View className='flex flex-row items-center ju' style={{width: 20}} >
+                    <TouchableOpacity onPress={() => handleSort('rank')}>
+                    <Text className='font-supremeBold'>#</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'rank' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center ' style={{width: 170}}>
+                    <TouchableOpacity onPress={() => handleSort('team.name')}>
+                        <Text className='font-supremeBold' >CLUB</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'team.name' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center justify-center ' style={{width: 40}}>
+                    <TouchableOpacity onPress={() => handleSort('all.played')}>
+                    <Text className='text-center font-supremeBold' >PLD</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'points' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center justify-center' style={{width: 30}}>
+                    <TouchableOpacity onPress={() => handleSort('all.win')}>
+                        <Text className='text-center font-supremeBold'>W</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'all.win' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center justify-center' style={{width: 30}}>
+                    <TouchableOpacity onPress={() => handleSort('all.draw')}>
+                        <Text className='text-center font-supremeBold' >D</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'all.draw' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center justify-center' style={{width: 30}}>
+                    <TouchableOpacity onPress={() => handleSort('all.lose')}>
+                        <Text className='text-center font-supremeBold' >L</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'all.lose' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center justify-center ' style={{width: 60}}>
+                    <TouchableOpacity onPress={() => handleSort('all.goals.for')}>
+                        <Text className='text-center font-supremeBold' >+/-</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'all.goals.for' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+
+                <View className='flex flex-row items-center justify-center' style={{width: 30}}>
+                    <TouchableOpacity onPress={() => handleSort('all.goals.against')}>
+                        <Text className='text-center font-supremeBold' >GD</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'all.goals.against' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                <View className='flex flex-row items-center justify-center' style={{width: 30}}>
+                    <TouchableOpacity onPress={() => handleSort('points')}>
+                        <Text className='text-center font-supremeBold' >PTS</Text>
+                    </TouchableOpacity>
+                    {selectedColumn === 'points' ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
+                </View>
+                </View>
+            </View>
+            <View className='border-b border-gray-300  w-full' />
+            </>
+        )
+    }
+
+    const renderRow = (item, index) =>{
+        return(
+            <> 
+            <View className='flex flex-row items-center  '  key={index}>
+                <View  style={{width: 5, height: '100%', backgroundColor: qualificationColor(item.description)}} />
+                <View className='flex flex-row items-center p-3 gap-2'>
+                <View className='flex flex-row items-center ' style={{width: 20}}>
+                    <Text className='font-supremeBold' >{item.rank}</Text>
+                </View>
+                <View className='flex flex-row items-center gap-3' style={{width: 170 }}>
+                <Image resizeMode='contain' className='' source={{uri: item.team.logo}} style={{width: 25, height: 25}}/>
+                <Text className={`font-supreme text-md `}>
+                  <Link href={{pathname: '/club/[id]', params:{id: item.team.id}}}>{item.team.name}</Link>
+                  </Text>
+                </View>
+                <Text className='text-center font-supreme' style={{width: 40}}>{item.all.played}</Text>
+                <Text className='text-center font-supreme'style={{width: 30}}>{item.all.win}</Text>
+                <Text className='text-center font-supreme'style={{width: 30}}>{item.all.draw}</Text>
+                <Text className='text-center font-supreme'style={{width: 30}}>{item.all.lose}</Text>
+                <Text className='text-center font-supreme'style={{width: 60}}>{item.all.goals.for}-{item.all.goals.against}</Text>
+                <Text className='text-center font-supreme'style={{width: 30}}>{item.goalsDiff}</Text>
+                <Text className='text-center font-supreme'style={{width: 30}}>{item.points}</Text>
+            </View>
+            </View>
+            <View className='border-b border-gray-300  w-full' />
+            </>
+        )
+    }
+    const handleSort = (column) =>{
+            const newDirection = direction === 'desc' ? 'asc' : 'desc'
+            if (column === 'date') {
+                const sorted = _.orderBy(standings, [
+                    (item) => {
+                        const [month, day, year] = item.date.split('/')
+                        return new Date(year, month - 1, day)
+                    }
+                ], [newDirection])
+                setStandings(sorted)
+            } 
+            else if (column === 'all.goals.against') {
+                const sorted = _.orderBy(standings, [
+                    (item) => {
+                        return item.all.goals.for - item.all.goals.against
+                    }
+                ], [newDirection])
+                setStandings(sorted)
+            }
+            else {
+                const sorted = _.orderBy(standings, [column], [newDirection])
+                setStandings(sorted)
+            }
+            setDirection(newDirection)
+            setSelectedColumn(column)
+        }
+  return (
+    <View className= ' p-5 w-full '>
+      <Text>League Table</Text> 
+      <ScrollView horizontal className='bg-white rounded-xl'>
+        
+       <FlatList scrollEnabled={false} data={standings} renderItem={({item, index}) => renderRow(item, index)} ListHeaderComponent={renderHeader} />
+      </ScrollView>
+    </View>
+  )
+}
+
+export default LeagueTable
+
+const styles = StyleSheet.create({})
