@@ -36,7 +36,7 @@ export const Search = () => {
   }
   return (
     <>
-    <View className='rounded-full p-2 w-full bg-white flex flex-row justify-between' style={{borderColor: focused ? '#A477C7' : 'grey', borderWidth: focused ? 1 : 0}}>
+    <View className='rounded-full p-2 flex-1 bg-white flex flex-row justify-between' style={{borderColor: focused ? '#A477C7' : 'grey', borderWidth: focused ? 1 : 1}}>
       <TextInput
         className='w-full'
         onFocus={() => setFocused(true)}

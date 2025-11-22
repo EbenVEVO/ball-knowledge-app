@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         width: Platform.select({
             ios:'100%',
             android:'100%',
-            web:'60%',
+            web:'100%',
             default:'100%',
         }),
         minHeight: Platform.select({

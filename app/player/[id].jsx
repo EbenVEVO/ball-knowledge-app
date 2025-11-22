@@ -1,9 +1,8 @@
-import {useLocalSearchParams} from 'expo-router'
-import { View, Text, Image, ScrollView, StyleSheet, Platform } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import {supabase} from '../../lib/supabase'
-import {PlayerProfile} from '../../components/PlayerProfile'
-import {Search} from '../../components/ui/Search'
+import { Platform, ScrollView, Text, View } from 'react-native'
+import { PlayerProfile } from '../../components/PlayerProfile'
+import { supabase } from '../../lib/supabase'
 
 export default function PlayerPage() {
     const {id} = useLocalSearchParams()
@@ -27,15 +26,9 @@ export default function PlayerPage() {
     if (Platform.OS === 'web') {
       return (
         
-        <div style={{ 
-            height: '100%',
-            overflowY: 'auto',
-            width: '100%',
-            margin: 'auto'
-        }}>
-            <Search />
+        <View className='px-5'>
             <PlayerProfile player={player} /> 
-        </div>
+        </View>
       )
     }
     return (

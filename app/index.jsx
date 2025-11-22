@@ -1,20 +1,7 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, Text, View, ScrollView, TextInput } from 'react-native';
-import { QueryCard } from '../components/ui/QueryCard';
-import {StatsCard} from '../components/ui/statsCard'
-import {PlayerLeadersCard} from '../components/ui/playerLeadersCard'
-import {VideoCard} from '../components/ui/videoCard'
+import { View , Text, Pressable} from 'react-native';
+import { Link } from 'expo-router';
 
-import {AllTimeStats} from '../components/ui/AllTimeStats'
-import {TeamRankings} from '../components/ui/TeamRankings'
-import {TrophyCard} from '../components/ui/TrophyCard'
-import {LeagueTable} from '../components/ui/LeagueTable'
-import {LeagueTableMini} from '../components/ui/LeagueTableMini'
-import {GameLog} from '../components/ui/GameLog'
-
- import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
- import {Search} from '../components/ui/Search'
-
+ 
 export default function HomeScreen() {
   const diegoForlanData = {
   seasons: [
@@ -120,40 +107,15 @@ export default function HomeScreen() {
   }
 };
   return (
-    <SafeAreaProvider>
-      <SafeAreaView className='flex flex-1' style={{flex: 1}}>
-        
-       <Search/>
-        
-        <ScrollView style={{flex: 1, }} contentContainerStyle={{flexGrow: 1} }>
-          <View 
-          
-          className={` mx-auto flex justify-center items-center ${Platform.OS == 'ios' || 'android' ? 'w-full' : 'w-3/4'}`}>
-          <QueryCard
-          colors = {['#FFB8EA', '#0']}
-          />
-        <View className='flex flex-row p-10 gap-10'>
-            
-        </View>
+    <View className=''>
+      <Text>Home Screen</Text>
 
-        <PlayerLeadersCard/>
-          <VideoCard/>
-
-          <AllTimeStats/>
-          <TeamRankings/>
-          <TrophyCard/>
-          <LeagueTable/>
-          <LeagueTableMini/>
-          <GameLog/>
-
-        </View>
-
-
-        </ScrollView>
-
-
-      </SafeAreaView>
-    </SafeAreaProvider>
+      <Link href ='/player/18' asChild>
+      <Pressable className='p-5 rounded-full ' style={{backgroundColor: 'red'}}>
+          <Text className='text-white'>Open Sanch</Text>
+      </Pressable>
+      </Link>
+    </View>
   );
 }
 
