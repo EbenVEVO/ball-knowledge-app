@@ -3,12 +3,13 @@ import { Slot, Stack } from 'expo-router';
 import 'react-native-reanimated';
 import '../global.css'
 import MenuBar from '@/components/ui/MenuBar'
-
+import {logout} from '../auth/authfunctions'
 
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { TouchableOpacity, View, Text, SafeAreaView, ScrollView } from 'react-native';
 import Search from '@/components/ui/Search';
+import AuthProvider from '@/providers/AuthProvider';
 
 
 export default function RootLayout() {
@@ -21,14 +22,16 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-        <WebLayout/>
-    </SafeAreaView>
+
+    <AuthProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+          <WebLayout/>
+      </SafeAreaView>
+    </AuthProvider>
   )
 }
 function WebLayout(){
@@ -38,6 +41,11 @@ function WebLayout(){
         <View className='flex flex-row h-[100px] py-3 gap-10 p-10 justify-center items-center' >
             <Text className = ' text-blue-500 font-supreme'>Ball Knowledge app</Text>
             <Search/>
+            <TouchableOpacity 
+              onPress={logout}
+            >
+              <Text>SignOut</Text>
+            </TouchableOpacity>
             <View/>
         </View>
         

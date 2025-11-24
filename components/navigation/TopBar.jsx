@@ -2,7 +2,6 @@ import { createMaterialTopTabNavigator,} from '@react-navigation/material-top-ta
 import {TeamOverview} from '../screens/TeamOverview';
 import {TeamSquad} from '../screens/TeamSquad';
 import {TeamFixtures} from '../screens/TeamFixtures';
-import {Test} from '../screens/test';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, Animated, Pressable} from 'react-native'
 import { useWindowDimensions } from 'react-native';
 import React from 'react'
@@ -10,6 +9,8 @@ import React from 'react'
 export const TopBar = ({club}) => {
   const {height} = useWindowDimensions();
  const Tab = createMaterialTopTabNavigator();
+ if (!club) console.log('error no club')
+  else console.log(club);
   return (
     <Tab.Navigator
     style={{flex: 1, height: height}}
@@ -21,7 +22,7 @@ export const TopBar = ({club}) => {
     >
         <Tab.Screen name="Overview" children={
           (props) => (<TeamOverview {...props} club={club} />)} />
-        <Tab.Screen name="Stats" children={(props) => (<Test {...props} />)} />
+        <Tab.Screen name="Stats" children={(props) => (<TeamOverview {...props} club={club} />)} />
         <Tab.Screen name="Fixtures" children={(props) => (<TeamFixtures {...props} club={club} />)}/>
         <Tab.Screen name="Squad" children={(props) => (<TeamSquad {...props} club={club} />)}/>
         <Tab.Screen name="History" component={TeamOverview} initialParams={{club: club}}/>

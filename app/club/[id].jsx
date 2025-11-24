@@ -15,6 +15,7 @@ export default function TeamPage() {
             if (!error){
               setClub(club)
             }
+            if(error) console.log(error)
         }
 
         if(id)fetchClub()
@@ -22,20 +23,6 @@ export default function TeamPage() {
     
     if(!club) return( <Text>loading</Text>)
 
-    if (Platform.OS === 'web') {
-      return (
-        
-        <div style={{ 
-            height: '100%',
-            overflowY: 'auto',
-            width: '100%',
-            margin: 'auto'
-        }}>
-
-            <TeamProfile club={club}/>
-        </div>
-      )
-    }
   return (
     <SafeAreaProvider>
       <SafeAreaView >

@@ -4,7 +4,6 @@ import React from 'react'
 
 export const TeamFixtures = ({club}) => {
   
-
   return (
     <View>
         <Fixtures club={club}/>

@@ -1,14 +1,20 @@
 import { Platform, StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import {PlayerTopBar} from '../navigation/PlayerTopBar';
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { supabase } from '../../lib/supabase';
+import { useEffect, useState } from 'react';
 import React from 'react'
+import { useAuth } from '../../contexts/AuthContext';
 
 export const PlayerHeader = ({player, club}) => {
-      let colors = ['#655085', '#FFFFFF']
+  const {session} = useAuth();
+  const [following , setFollowing] = useState()
+  let colors = ['#655085', '#FFFFFF']
   if (club?.colors) {
     colors = club?.colors
   }
+  
     function lightenColor(hex, percent) {
   // strip the leading #
   hex = hex.replace(/^#/, '');
@@ -25,7 +31,39 @@ export const PlayerHeader = ({player, club}) => {
 
   // convert back to hex
   return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-}
+  }
+  useEffect(() => {
+    async function checkFollowing(){
+      const {data, error} = await supabase.from('users_followed_players').select('*').eq('user_id', session.user.id).eq('player_id', player.id).single()
+      if (data){
+       setFollowing(true)
+       console.log(data)
+      }
+      else{
+        console.log(error)
+        setFollowing(false)
+      }
+    }
+    checkFollowing()
+  })
+  const handleFollow = async ()=>{
+    if (following){
+      console.log('unfollow')
+     const {error} = await supabase.from('users_followed_players').delete().eq('user_id', session.user.id).eq('player_id', player.id)
+     if (error) console.log(error)
+      setFollowing(false)
+    }
+    else {
+      console.log('follow')
+      const {data, error} = await supabase.from('users_followed_players').insert({user_id: session.user.id, player_id: player.id})
+      if (error) console.log(error)
+      else{
+        console.log(data)
+          setFollowing(true)}
+      
+    }
+  }
+
 
   return (
     <><View
@@ -44,6 +82,16 @@ export const PlayerHeader = ({player, club}) => {
           className='rounded-full ' />
 
       </View>
+       {session &&<View className='absolute top-1 right-5 flex flex-row gap-5' > 
+        
+            <Pressable 
+            className=' bg-white rounded-full px-10 py-2'
+            onPress={handleFollow}
+            >
+              {following ? <FontAwesome name="heart" size={40} color="#A477C7" /> : <FontAwesome name="heart-o" size={40} color="black" />}
+            </Pressable>
+           
+        </View>}
 
     </View></>
   )

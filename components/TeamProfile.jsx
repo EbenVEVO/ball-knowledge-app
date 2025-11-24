@@ -1,16 +1,56 @@
 import { StyleSheet, Text, TouchableOpacity, View, Platform, Pressable, Image, ScrollView, SafeAreaView, SafeAreaProvider } from 'react-native'
-import React from 'react'
-import Feather from '@expo/vector-icons/Feather';
+import React, { useEffect } from 'react'
 import {TopBar} from './navigation/TopBar'
 import GameLog from './ui/GameLog';
 import { useWindowDimensions } from 'react-native';
-
+import { useState } from 'react';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export const TeamProfile = ({club}) => {
-  const { height } = useWindowDimensions();
+  const {session} = useAuth();
+  const [following , setFollowing] = useState()
+
+
+  useEffect(() => {
+    const checkFollow = async () => {
+      const {data, error} = await supabase.from('users_followed_teams').select('*').eq('user_id', session.user.id).eq('team_id', club.id).single()
+      if (data) {
+        console.log('true')
+        setFollowing(true)
+      }
+      else {
+        console.log(error)
+        console.log('false')
+        setFollowing(false)
+      }
+    }
+    checkFollow()
+  },[session])
+
   let colors = ['#655085', '#FFFFFF']
   if (club.colors) {
     colors = club.colors
+  }
+
+  const handleFollow = async ()=>{
+    if (following){
+      console.log('unfollow')
+     const {error} = await supabase.from('users_followed_teams').delete().eq('user_id', session.user.id).eq('team_id', club.id)
+     if (error) console.log(error)
+      setFollowing(false)
+    }
+    else {
+      console.log('follow')
+      const {data, error} = await supabase.from('users_followed_teams').insert({user_id: session.user.id, team_id: club.id})
+      if (error) console.log(error)
+      else{
+        console.log(data)
+          setFollowing(true)}
+      
+    }
   }
 
   return ( 
@@ -34,11 +74,16 @@ export const TeamProfile = ({club}) => {
             style={{ width: 120, height: 120}}
             resizeMode='contain'
             /> 
-            <View className='flex flex-col gap-2 justify-between'>
+            <View className='flex flex-col gap-2 '>
+              <View className='flex flex-row items-center gap-2'>
             <Text 
             style = {[styles.clubname, {color: colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1]}]}
             className=' font-supremeBold'
             >{club.club_name}</Text>
+            {following &&
+            <Text>Following</Text>
+              }
+            </View>
             <View className='flex flex-row items-center justify-center gap-2'>
             <Text 
             style = {{color: colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1]}}
@@ -53,11 +98,16 @@ export const TeamProfile = ({club}) => {
                 
             </View>
             
+            {session &&<View className='absolute top-1 right-5 flex flex-row gap-5' > 
+        
             <Pressable 
-            className='absolute top-1 right-3'
+            className=' bg-white rounded-full px-10 py-2'
+            onPress={handleFollow}
             >
-              <Feather name="share" size={20} color="blue" className='px-5 p-2 bg-white rounded-full' />
+              {following ? <FontAwesome name="heart" size={40} color="#A477C7" /> : <FontAwesome name="heart-o" size={40} color="black" />}
             </Pressable>
+           
+            </View>}
            
         </View> 
               
@@ -74,7 +124,7 @@ export default TeamProfile
 const styles = StyleSheet.create({
 
     teamprofile:{
-      width: Platform.select({ios:'100%', android:'100%', web:'60%', default:'100%'}),
+      width: Platform.select({ios:'100%', android:'100%', web:'100%', default:'100%'}),
       overflow: 'auto'
     },
 
@@ -88,7 +138,7 @@ const styles = StyleSheet.create({
         width: Platform.select({
             ios:'100%',
             android:'100%',
-            web:'60%',
+            web:'100%',
             default:'100%',
         }),
         minHeight: Platform.select({

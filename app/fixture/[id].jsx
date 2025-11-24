@@ -9,8 +9,8 @@ export default function FixturePage(){
     const [fixture, setFixture] = useState(null)
   useEffect(() => {
     const fetchFixture = async () => {
-      const { data, error } = await supabase
-        .from('fixtures')
+      const { data, error } = await supabase.
+        schema('football').from('fixtures')
         .select(
           `*,
           home_team:home_team_id (club_name,logo,id,colors),
@@ -74,19 +74,7 @@ export default function FixturePage(){
 
     if(!fixture) return <Text>Loading...</Text>
 
-    if (Platform.OS === 'web'){
-        return(
-            <div style={{ 
-            height: '100%',
-            overflowY: 'auto',
-            width: '100%',
-            margin: 'auto'
-        }}>
-                <FixtureScreen fixture={fixture} />
-            </div>
-        )
-    }
-
+  
     return(
         <View>
             <FixtureScreen fixture={fixture} />

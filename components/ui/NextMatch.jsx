@@ -13,7 +13,7 @@ export const NextMatch = ({club}) => {
     const [competition, setCompetition] = useState({})
     useEffect(() => {
         const getNextMatch = async () => {
-            const {data: nextMatch , error} = await supabase.from('fixtures').select('*')
+            const {data: nextMatch , error} = await await supabase.from('fixtures').select('*')
             .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
             .eq('match_status', 'Not Started')
             .order('date_time_utc', { ascending: true })

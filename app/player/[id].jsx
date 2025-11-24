@@ -15,6 +15,9 @@ export default function PlayerPage() {
             if (!error){
               setPlayer(player)
             }
+            else{
+              console.log(error)
+            }
         }
     
         if(id)fetchPlayer()

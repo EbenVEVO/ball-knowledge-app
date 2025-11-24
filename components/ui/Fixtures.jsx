@@ -3,6 +3,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import React, { use, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase';
 import {Link} from 'expo-router'
+import {FlashList} from '@shopify/flash-list'
 
 export const Fixtures = ({club}) => {
 
@@ -61,6 +62,7 @@ export const Fixtures = ({club}) => {
       setFixtures([...proccesedDone.reverse(),...proccesedUpcoming])
     }
     const loadInitialFixuresWeb = async () => {
+
       const {data: anchorFixtures , error} = await supabase.from('fixtures').select(`*,
         home_team:home_team_id (club_name,logo, id),
         away_team:away_team_id (club_name,logo, id),
@@ -71,6 +73,14 @@ export const Fixtures = ({club}) => {
       .eq('match_status', 'Match Finished')
       .order('date_time_utc', { ascending: false })
       .limit(4)
+      if (error){
+        console.log(error)
+      }
+      if (!anchorFixtures || anchorFixtures.length === 0) {
+        console.log('No finished fixtures found for this club')
+        setFixtures([]) // Set empty fixtures
+        return
+      }
       const anchor = anchorFixtures.at(-1).date_time_utc
       setAnchorDate(anchor)
       
@@ -98,7 +108,7 @@ export const Fixtures = ({club}) => {
     }
     const loadFixtures = async () => {
       console.log(page) 
-      let query = supabase.from('fixtures').select(`*,
+      let query = await supabase.from('fixtures').select(`*,
           home_team:home_team_id (club_name,logo, id),
           away_team:away_team_id (club_name,logo, id),
           competition:league_id (name, id, logo)
@@ -233,7 +243,7 @@ export const Fixtures = ({club}) => {
       </View>
       
     <View className='flex flex-col w-full ' style={{flex: 1}}>
-        <FlatList
+        <FlashList
         style={{flex: 1}}
         data={fixtures}
         contentContainerStyle={{ flexGrow: 1 }}
