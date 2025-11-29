@@ -3,10 +3,20 @@ import {FixtureOverview} from '../components/ui/FixtureOverview'
 import {FixtureTimeline} from '../components/ui/FixtureTimeline'
 import {MatchStats} from '../components/ui/MatchStats'
 import {FixtureLineups} from '../components/ui/FixtureLineups'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import PlayerModal from './ui/PlayerModal'
+import { on } from 'events'
+import { usePlayerModalStore } from '../contexts/modalStore'
 
 export const FixtureScreen = ({fixture}) => {
-    
+  const {playerModalData} = usePlayerModalStore()
+  const [modalVisible, setModalVisible] = useState()
+  useEffect(()=>{
+    console.log(playerModalData, 'modal info')
+    if(playerModalData?.isVisible){
+      setModalVisible(playerModalData?.isVisible)
+    }
+  },[playerModalData])
   return (
     <View style={styles.container}>
       <FixtureOverview fixture = {fixture}/>
@@ -15,6 +25,12 @@ export const FixtureScreen = ({fixture}) => {
         <MatchStats fixture = {fixture}/>
       </View>
         <FixtureLineups fixture = {fixture}/>
+        {(playerModalData?.player && playerModalData?.stats) && <PlayerModal
+          isVisible={modalVisible}
+          onClose={()=>setModalVisible(!modalVisible)}
+          player={playerModalData.player}
+          stats={playerModalData.stats}
+        />}
     </View>
   )
 }

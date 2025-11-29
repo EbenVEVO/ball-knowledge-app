@@ -1,16 +1,24 @@
 import {Modal as RNModal, StyleSheet, Text, View, TouchableWithoutFeedback, Platform, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link } from 'expo-router';
+import PlayerStats from './PlayerStats';
+import Comments from './Comments';
 
-export const PlayerModal = ({isVisible, onClose, stats, player, photo}) => {
+export const PlayerModal = ({isVisible, onClose, stats, player}) => {
     const [playerStats, setPlayerStats] = useState(null);
+    const [commentsScreen, setCommentsScreen] = useState(false)
+    const [statsScreen, setStatsScreen] = useState(true)
+
+
       useEffect(() => {
         if (!stats) return
-        newStats = Object.fromEntries(
+        const newStats = Object.fromEntries(
         Object.entries(stats).map(([key, value]) => [key, value === null ? 0 : value])
         
       )
+      console.log(newStats)
         setPlayerStats(newStats)
       },[stats])
     const dobtoage = (dob) => {
@@ -43,12 +51,21 @@ if (player.player_id === 0) return null
                         </View>
                     </TouchableOpacity>
                 </Link>
+                <TouchableOpacity
+                    onPress={()=>{
+                        console.log('comments', commentsScreen, 'stats', statsScreen)
+                        setCommentsScreen(!commentsScreen)
+                        setStatsScreen(!statsScreen)
+                    }}
+                >
+                    <Text>Toogle</Text>
+                </TouchableOpacity>
             <View className='flex flex-col gap-5 p-10'> 
             <View className='flex flex-col justify-center items-center '>
             
              <View className='relative'>
       <Image 
-        source={{uri: photo}} 
+        source={{uri: playerStats?.player.photo}} 
         style={{width: 70, height: 70, borderRadius: 50}}
       />
       
@@ -74,7 +91,15 @@ if (player.player_id === 0) return null
                     <Text className='font-supreme tracking-tight text-lg'>{dobtoage(playerStats?.player.DOB)}</Text>
                     <Text className='font-supreme tracking-tight text-sm text-gray-600'>Age</Text>
                 </View>
-            </View></View>
+
+            </View>
+                <View className='justify-center flex items-center gap-2'>
+                    <TouchableOpacity className='items-center flex flex-row gap-2 px-5 p-2 rounded-full' style={{borderWidth:1}}>
+                        <FontAwesome name="comment" size={20} color="#A477C7"/>
+                        <Text>11.1K</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>{!commentsScreen ?
             <div style={{ 
                 height: '100%',
                 overflowY: 'auto',
@@ -83,94 +108,11 @@ if (player.player_id === 0) return null
                 padding: '20px',
                 gap: '10px'
             }}>
-                <Text  className='py-3 font-supremeBold text-xl'>Player Stats</Text>
-                <View className='flex flex-col gap-3 py-3'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Minutes Played</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.minutes}</Text>
-                    </View>    
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Goals</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.goals}</Text>
-                    </View>    
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Assists</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.assists}</Text>
-                    </View>    
-
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Total Shots</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.shots}</Text>
-                    </View>
-                </View>
-
-                <Text  className='py-3 font-supremeBold text-xl'>Attack</Text>   
-                <View className='flex flex-col gap-3 py-3'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Shots on Target</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.shots_on_goal}/{playerStats?.shots}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Completd Passes</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.pass_accuracy}/{playerStats?.passes}{(playerStats?.passes > 0 ) && ` (${Math.round((playerStats.pass_accuracy / playerStats.passes) * 100)}%)`}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Key Passes</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.key_passes}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Successful Dribbles</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.dribbles_successful}/{playerStats?.dribbles_attempted}{(playerStats?.dribbles_attempted > 0 ) && ` (${Math.round((playerStats.dribbles_successful / playerStats.dribbles_attempted) * 100)}%)`}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Penalty Goals</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.penalties_scored}/{playerStats?.penaties_missed+playerStats?.penalties_scored}</Text>
-                    </View>
-
-                </View> 
-                <Text  className='py-3 font-supremeBold text-xl'>Defence</Text>
-                <View className='flex flex-col gap-3 py-3'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Tackles Won</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.tackles}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Interceptions</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.interceptions}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Blocks</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.blocks}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Yellow Cards</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.yellow_cards}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Red Cards</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.red_cards}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className ='font-supreme tracking-tight text-lg'>Goals Conceded</Text>   
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.goals_conceded}</Text>
-                    </View>        
-                </View>
-                <Text className='py-3 font-supremeBold text-xl'>Duels</Text>
-                <View className='flex flex-col gap-3 py-3'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Duels Won</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.duels_won}/{playerStats?.duels}{(playerStats?.duels > 0 ) && ` (${Math.round((playerStats.duels_won / playerStats.duels) * 100)}%)`}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Was Fouled</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.fouled}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-lg'>Fouls Committed</Text>
-                        <Text className='font-supreme tracking-tight text-lg'>{playerStats?.fouls}</Text>
-                    </View>
-                </View>
-            </div>
+                
+                <PlayerStats playerStats={playerStats}/> </div>:
+                <Comments post_id={playerStats?.id}/>
+                }
+           
           </View>
             :
             <View className='flex flex-col  p-10 gap-5'>
@@ -198,102 +140,12 @@ if (player.player_id === 0) return null
                     <Text className='font-supreme tracking-tight text-sm'>Age</Text>
                 </View>
             </View>
+            
             <ScrollView>
-                <Text>Player Stats</Text>
-                <View className='flex flex-col gap-2'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Minutes Played</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.minutes}</Text>
-                    </View>    
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Goals</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.goals}</Text>
-                    </View>    
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Assists</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.assists}</Text>
-                    </View>    
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Yellow Cards</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.yellow_cards}</Text>
-                    </View>    
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Red Cards</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.red_cards}</Text>
-                    </View>
-
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Total Shots</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.shots}</Text>
-                    </View>
-                </View>
-
-                <Text>Attack</Text>   
-                <View className='flex flex-col gap-2'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Shots on Target</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.shots_on_goal}/{playerStats?.shots}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Completed Passes</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.pass_accuracy}/{playerStats?.passes}{(playerStats?.passes > 0 ) && ` (${Math.round((playerStats.pass_accuracy / playerStats.passes) * 100)}%)`}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Key Passes</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.key_passes}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Successful Dribbles</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.dribbles_successful}/{playerStats?.dribbles_attempted}{(playerStats?.dribbles_attempted > 0 ) && ` (${Math.round((playerStats.dribbles_successful / playerStats.dribbles_attempted) * 100)}%)`}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Penalty Goals</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.penalties_scored}/{playerStats?.penaties_missed+playerStats?.penalties_scored}</Text>
-                    </View>
-
-                </View> 
-                <Text>Defence</Text>
-                <View className='flex flex-col gap-2'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Tackles Won</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.tackles}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Interceptions</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.interceptions}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Blocks</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.blocks}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Yellow Cards</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.yellow_cards}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Red Cards</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.red_cards}</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className ='font-supreme tracking-tight text-sm'>Goals Conceded</Text>   
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.goals_conceded}</Text>
-                    </View>        
-                </View>
-                <Text>Duels</Text>
-                <View className='flex flex-col gap-2'>
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Duels Won</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.duels_won}/{playerStats?.duels}{(playerStats?.duels > 0 ) && ` (${Math.round((playerStats.duels_won / playerStats.duels) * 100)}%)`}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Was Fouled</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.fouled}</Text>
-                    </View> 
-                    <View className='flex flex-row items-center justify-between'>
-                        <Text className='font-supreme tracking-tight text-sm'>Fouls Commited</Text>
-                        <Text className='font-supreme tracking-tight text-sm'>{playerStats?.fouls}</Text>
-                    </View>
-                </View>
+                {!commentsScreen ?
+                <PlayerStats playerStats={playerStats}/>:
+                <Comments post_id={playerStats?.id}/>
+                }
             </ScrollView>
           </View>}
                         </View>
@@ -312,8 +164,8 @@ const styles = StyleSheet.create({
     container:{
 
 
-        width: '25%',
-        height: '80%',
+        width: '50%',
+        height: '85%',
         backgroundColor: 'white',
         borderRadius: 10,
         shadowColor: '#000',

@@ -9,8 +9,7 @@ export default function FixturePage(){
     const [fixture, setFixture] = useState(null)
   useEffect(() => {
     const fetchFixture = async () => {
-      const { data, error } = await supabase.
-        schema('football').from('fixtures')
+      const { data, error } = await supabase.from('fixtures')
         .select(
           `*,
           home_team:home_team_id (club_name,logo,id,colors),

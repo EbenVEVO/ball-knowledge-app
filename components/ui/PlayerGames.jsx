@@ -6,8 +6,9 @@ import Fontisto from '@expo/vector-icons/Fontisto';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { FontAwesome } from '@expo/vector-icons';
+import {usePlayerModalStore} from '../../contexts/modalStore'
 
-export const PlayerGames = ({player}) => {
+export const PlayerGames = ({player, setIsVisible, setPlayerStats, setPlayerInfo}) => {
     const MATCHES_PER_PAGE = 15
     const [matches, setMatches] = useState([])
     const [hovered, setHovered] = useState(null)
@@ -20,7 +21,11 @@ export const PlayerGames = ({player}) => {
 
     const fetchMatches = async () => {
         let query = supabase.from('player_stats').select(`*, 
-            fixture: fixture_id (date_time_utc, home_team : home_team_id (club_name, logo, id), away_team: away_team_id (club_name, logo, id), league: league_id (name, logo), home_score, away_score)
+            player: player_id (photo, nationality, DOB, country_code, flag: country_code(flag_url)),
+            fixture: fixture_id 
+                    (date_time_utc, 
+                    home_team: home_team_id (club_name, logo, id), 
+                    away_team: away_team_id (club_name, logo, id), league: league_id (name, logo), home_score, away_score)
         `).eq('player_id', player?.id)
 
         if (page === 0){
@@ -35,8 +40,32 @@ export const PlayerGames = ({player}) => {
         }
         const {data, error} = await query
         if (!error) {
+            console.log(data)
+            const fixture_ids = data.map((match) => match.fixture_id)
+            console.log(fixture_ids)
+
+            const {data: lineupPlayers, error: lineupPlayersError} = await supabase.from('fixture_lineups').select(`*`).in('fixture_id', fixture_ids)
+            
+            console.log(lineupPlayers)
+            
+            const mergedData = data.map(match=>{
+                const lineup = lineupPlayers.filter(l => l.fixture_id === match.fixture_id)
+                console.log(lineup)
+                const playerInLineup = lineup.find(l =>
+                    {
+                    const inStarting = l.starting_lineup?.find(p => p.player_id === player.id);
+                     const inSubs     = l.substitutes?.find(p => p.player_id === player.id);
+
+                    return inStarting || inSubs}
+                )
+                const combinedLineups = [...playerInLineup.substitutes, ...playerInLineup.starting_lineup]
+                const playerObject = combinedLineups.find(p => p.player_id === player.id)
+                match.playerInfo = playerObject           
+            })
+            console.log(data)
             setMatches(data)
         }
+        else{console.log(error)}
 
     }
     const formatDate = (date) => {
@@ -79,11 +108,16 @@ export const PlayerGames = ({player}) => {
                 }
             }
         return (
-            <Link href={{pathname: '/fixture/[id]', params:{id: item.fixture_id}}} asChild>
-            <TouchableOpacity className='flex flex-row w-full items-center p-3  gap-2'
+          <TouchableOpacity className='flex flex-row w-full items-center p-3  gap-2'
                 onMouseEnter={() => setHovered(index)}
                 onMouseLeave={() => setHovered(null)}
                 style={{backgroundColor: hovered === index && '#e4e4e4ff'}}
+                onPress={()=>{
+                    setIsVisible(true)
+                    setPlayerInfo(item.playerInfo)
+                    setPlayerStats(item)
+                }}
+        
             >
             <View className='flex flex-row w-full items-center '>
                 <View className='flex flex-row items-center gap-2' style={{flex: 2}}>
@@ -109,7 +143,6 @@ export const PlayerGames = ({player}) => {
                 </View>
            </View>
            </TouchableOpacity>
-           </Link>
         )
     }
   return (

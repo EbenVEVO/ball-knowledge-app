@@ -37,8 +37,8 @@ export default function RootLayout() {
 function WebLayout(){
 
     return(
-    <View className='flex-1 h-full'>
-        <View className='flex flex-row h-[100px] py-3 gap-10 p-10 justify-center items-center' >
+    <View className='flex-1 h-full' >
+        <View className='flex flex-row h-[100px] py-3 gap-10 p-10 justify-center items-center' style={{zIndex:10}}>
             <Text className = ' text-blue-500 font-supreme'>Ball Knowledge app</Text>
             <Search/>
             <TouchableOpacity 

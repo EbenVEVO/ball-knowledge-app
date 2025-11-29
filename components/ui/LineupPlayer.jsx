@@ -6,7 +6,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import React, { useEffect, useState } from 'react'
 
-export const LineupPlayer = ({player, position, awayTeam = false, photo,stats, goalScorer, assist, yellowCard, redCard, subbed, ownGoal}) => {
+export const LineupPlayer = ({player, position, awayTeam = false,stats, goalScorer, assist, yellowCard, redCard, subbed, ownGoal}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
   const getGridPosition = (position) => {
@@ -55,7 +55,7 @@ export const LineupPlayer = ({player, position, awayTeam = false, photo,stats, g
     ><TouchableOpacity className = 'flex items-center flex-col gap-2 ' onPress={() => setModalVisible(true)} >
         <View className='relative'>
       <Image 
-        source={{uri: photo}} 
+        source={{uri: stats.player.photo}} 
         style={{width: 50, height: 50, borderRadius: 50}}
       />
       {goalScorer && <View className='bg-white rounded-full items-center justify-center 'style={{position: 'absolute', zIndex: 1, padding: 1, bottom: -5, right:-10}}>
@@ -79,7 +79,7 @@ export const LineupPlayer = ({player, position, awayTeam = false, photo,stats, g
       <Text className='text-center font-supremeBold tracking-tight text-sm ' style={{width: 130}}>{player.number} {player.player_name}</Text>
       </TouchableOpacity>
 
-      <PlayerModal isVisible={modalVisible} onClose={() => setModalVisible(false)} player={player} stats={stats} photo={photo}/>
+      <PlayerModal isVisible={modalVisible} onClose={() => setModalVisible(false)} player={player} stats={stats}/>
 
     </View>
     

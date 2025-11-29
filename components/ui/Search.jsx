@@ -35,14 +35,16 @@ export const Search = () => {
        }
   }
   return (
-    <>
-    <View className='rounded-full p-2 flex-1 bg-white flex flex-row justify-between' style={{borderColor: focused ? '#A477C7' : 'grey', borderWidth: focused ? 1 : 1}}>
+    <View className='relative z-10 flex-1' style={{zIndex:999}}>
+    
+    <View className='rounded-full p-2 px-4  bg-white flex  flex-row justify-between items-center' style={{borderColor: focused ? '#A477C7' : 'grey', borderWidth: focused ? 1 : 1,}}>
       <TextInput
         className='w-full'
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         style={{outlineStyle: 'none', paddingLeft: 10}}
         placeholderTextColor='grey'
+        value={input}
         placeholder='Search a query on players, stats, or clubs'
         onChangeText={(text) => {
           setInput(text)
@@ -53,15 +55,19 @@ export const Search = () => {
 
         
       </TextInput>
-      <FontAwesome name="search" size={24} color="#A477C7" />
+      <FontAwesome name="search" size={20} color="#A477C7"  />
     </View>
-    {results.length > 0 &&    <View className='rounded-xl p-2 w-full bg-white flex flex-col absolute 'style={{top: 42, zIndex: 1}}>
+    {results.length > 0 &&    <View className='rounded-xl p-2 w-full bg-white flex flex-col absolute shadow-lg 'style={{top: 50, zIndex: 10}}>
           {results.map((result, index) => {
             return(
               <Link asChild  href={{pathname: result.type == 'club' ? '/club/[id]' : '/player/[id]', params:{id:result.id}}}>
               <TouchableOpacity
                 onMouseEnter={() => setHovered(index)}
                 onMouseLeave={() => setHovered(null)}
+                onPress={()=>{
+                  setInput('')
+                  setResults([])
+                }}
                 style={{backgroundColor: hovered === index && '#e4e4e4ff'}}
                 
               > 
@@ -88,7 +94,7 @@ export const Search = () => {
             )
           })}
     </View>}
-    </>
+    </View>
   )
 }
 

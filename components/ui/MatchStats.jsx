@@ -29,9 +29,10 @@ export const MatchStats = ({fixture}) => {
 };
 
     const statNames = ['Expected Goals (xG)', 
+    'Total Shots',
 'Shots on Goal',
 'Shots off Goal',
-'Total Shots',
+
 'Blocked Shots',
 'Shots Outside Box',
 'Shots Inside Box',

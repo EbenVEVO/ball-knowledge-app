@@ -268,14 +268,12 @@ export const FixtureLineups = ({fixture}) => {
           const yellowCard = yellowCards.includes(player.player_id)
           const subbed = subbedOutPlayers.includes(player.player_id)
           const og = ownGoals.includes(player.player_id)
-          const photo = stats.player.photo
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
               player={player}
-              photo={photo}
               stats={stats}
               position={position}
               goalScorer={goalScorer}
