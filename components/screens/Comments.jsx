@@ -3,12 +3,16 @@ import React, { useCallback, useEffect, useState, useRef  } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase } from '../../lib/supabase';
-
+import UserCommentInput from '../ui/UserCommentInput';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { comment } from 'postcss';
+import Comment from '../ui/Comment';
 
 export default function Comments({post_id}) {
     const {session, profile} = useAuth()
     const [userComment, setUserComment]= useState('')
     const [comments, setComments] = useState([])
+    const [loading, setLoading] = useState(true)
     const [pendingComments, setPendingComments] = useState(new Set())
     const [newCommentsCount, setNewCommentsCount] = useState(0)
     const [visibleComments, setVisibleComments] = useState(new Set())
@@ -43,13 +47,21 @@ export default function Comments({post_id}) {
     const visibilityConfig = useRef({
         itemVisiblePercentThreshold: 10
     }).current
-    const sendComment = async (commentData) =>{
+    const sendComment = async () =>{
+        const commentData = {
+          comment: userComment,
+          player_performance_id: post_id,
+          user_id: profile?.user_id
+        }
+        if(replyingTo) commentData.parent_id = replyingTo.id
+        console.log('insert', commentData)
         const {data, error}= await supabase.from('social_player_comments').insert(commentData)
         if(error){
           console.log(error)
         }
         else{
           setUserComment('')
+          setReplyingTo()
         }
     }
 
@@ -57,17 +69,22 @@ export default function Comments({post_id}) {
       flatListRef.current.scrollToIndex({index: 0, animated: true})
     }
 
+   
+
     useEffect(()=>{
       const fetchComments = async ()=>{
         const {data, error} = await supabase.from('social_player_comments').select(`*,
           user: user_id(profile_pic, username)
-        `).eq('player_performance_id', post_id).order('created_at', {ascending: false })
+        `).eq('player_performance_id', post_id)
+        .is('parent_id',null)
+        .order('created_at', {ascending: false })
         if(error){
           console.log(error)
         }
         else{
           console.log(data)
           setComments(data)
+          setLoading(false)
 
         }
       }
@@ -82,19 +99,32 @@ export default function Comments({post_id}) {
       .on('postgres_changes', { event: '*',
        schema: 'public', 
        table: 'social_player_comments',
-        filter: `player_performance_id=eq.${post_id}`
+      filter: `player_performance_id=eq.${post_id}`
       }, async (payload) => {
-        console.log('Change received!', payload)
+        console.log('Realtime event received:', payload)
 
         if(payload.eventType === 'INSERT'){
-          const {data:newComments} = await supabase.from('social_player_comments').
+          const {data:newComment} = await supabase.from('social_player_comments').
           select(`*, user:user_id(username, profile_pic)`)
-          .eq('id', payload.new.id).single()
+          .eq('id', payload.new.id)
+          .single()
 
-          if(newComments){
-            setComments(prev => [ newComments, ...prev ])
-            setPendingComments(prev => new Set(prev).add(newComments.id))
-            setNewCommentsCount(prev => prev + 1)
+          if(newComment){
+            if (!newComment.parent_id){
+              setComments(prev => [ newComment, ...prev ])
+              setPendingComments(prev => new Set(prev).add(newComment.id))
+              setNewCommentsCount(prev => prev + 1)
+            }
+            else {
+              console.log('increment Reply')
+              setComments(prev => prev.map(comment => 
+                comment.id === newComment.root_id 
+                  ? { ...comment, reply_count: (comment.reply_count || 0) + 1 }
+                  : comment
+              ))
+              console.log(comments)
+                
+            }
              
           }
 
@@ -103,7 +133,10 @@ export default function Comments({post_id}) {
       })
       .subscribe()
 
-    
+      return () => {
+        console.log('Unsubscribing from comments channel')
+        supabase.removeChannel(channel)
+      }
     }, [post_id])
 
   const activateHighlight = (commentId) =>{
@@ -136,41 +169,29 @@ export default function Comments({post_id}) {
     }
   }
 
+
+
   const renderComments = ({item: comment}) =>{ 
     if(!comment)return
     const isNew= newCommentIds.has(comment?.id)
     const fadeAnim = fadeAnims.current[comment?.id]
-
     const backgroundColor = isNew && fadeAnim? fadeAnim.interpolate({
       inputRange:[0, 1], outputRange: ['#A477C7', 'white']
     }):
     'transparent'
+
     return (
-    <Animated.View 
-      style={{
-        backgroundColor,
-        borderWidth: isNew ? 1 : 0,
-        borderColor: isNew ? 'white' : 'transparent',
-      }}
-    >
-      <View className='flex flex-row items-center gap-2 p-3 ' >
-          <Image source={{uri: comment.user?.profile_pic}} style={{width:40, height:40}}/>
-          <View className="gap-2">
-            <View className= 'flex flex-row justify-between'>
-              <Text className='font-supremeBold '>{comment.user?.username}</Text>
-              <Text >{comment.created_at}</Text>
-            </View>
-            <Text className='font-supreme'>{comment.comment}</Text>
-            <Pressable
-              onPress={()=> setReplyingTo(comment.id)}
-            >
-              <Text>Reply</Text>
-            </Pressable>
-          </View>
-        </View>
-    </Animated.View>
+      <Comment
+        comment={comment}
+        isNew={isNew}
+        backgroundColor={backgroundColor}
+        setReplyingTo={setReplyingTo}
+      />
   )}
+  
+  if (loading)return <Text>Loading...</Text>
   return (
+    <>
     <View className='flex-1 px-5 mb-5 relative'>
       <Text>Comments</Text>
       {newCommentsCount > 0 && <View className='absolute z-10 top-5 left-1/2 -translate-x-1/2'>
@@ -187,39 +208,20 @@ export default function Comments({post_id}) {
        renderItem={renderComments}
        keyExtractor={(item) => item.id}
        onViewableItemsChanged={onViewableItemsChanged}
-       ListEmptyComponent={<Text>Loading...</Text>}
        viewabilityConfig={visibilityConfig}
        />
-
-        {session &&(
-            {replyingTo && <View>}
-              <View className ='flex flex-row items-center gap-3 '>
-            <Image source={{ uri: profile?.profile_pic }} className='rounded-full' style={{width:35, height:35}}/>
-            <View className='flex flex-row rounded-full items-center p-3 flex-1' style={{borderWidth: 1}}>
-                <TextInput
-                  placeholder='Comment...'
-                  value={userComment}
-                  onChangeText={setUserComment}
-                  className='flex-1 flex w-full  '
-                  style={{outlineStyle: 'none'}}
-         
-                />
-                <TouchableOpacity
-                disabled={userComment.length ===0 ? true:false}
-                  onPress={()=>sendComment({
-                    comment: userComment,
-                    player_performance_id: post_id,
-                    user_id: profile?.user_id
-
-                  })}
-                >
-                <Ionicons name="send" size={24} color="black" />                
-                </TouchableOpacity>
-            </View>
-          </View> )
-        }
       </View>
-   
+
+        {session && (
+          <UserCommentInput
+          setUserComment={setUserComment}
+          userComment={userComment}
+          onSubmit={sendComment}
+          profile = {profile}
+          replyingTo = {replyingTo}
+          setReplyingTo={setReplyingTo} />
+        )}
+   </>
   )
 }
 

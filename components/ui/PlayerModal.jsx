@@ -4,7 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link } from 'expo-router';
 import PlayerStats from './PlayerStats';
-import Comments from './Comments';
+import Comments from '../screens/Comments';
 
 export const PlayerModal = ({isVisible, onClose, stats, player}) => {
     const [playerStats, setPlayerStats] = useState(null);
