@@ -1,9 +1,11 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import { ScrollView } from 'react-native-gesture-handler'
 
 const PlayerStats = ({playerStats}) => {
   return (
-    <><Text className='py-3 font-supremeBold text-xl'>Player Stats</Text><View className='flex flex-col gap-3 py-3'>
+    <>
+    <Text className='py-3 font-supremeBold text-xl'>Player Stats</Text><View className='flex flex-col gap-3 py-3'>
           <View className='flex flex-row items-center justify-between'>
               <Text className='font-supreme tracking-tight text-lg'>Minutes Played</Text>
               <Text className='font-supreme tracking-tight text-lg'>{playerStats?.minutes}</Text>
@@ -81,7 +83,8 @@ const PlayerStats = ({playerStats}) => {
                   <Text className='font-supreme tracking-tight text-lg'>Fouls Committed</Text>
                   <Text className='font-supreme tracking-tight text-lg'>{playerStats?.fouls}</Text>
               </View>
-          </View></>
+          </View>
+          </>
   )
 }
 

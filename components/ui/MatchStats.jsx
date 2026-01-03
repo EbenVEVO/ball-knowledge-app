@@ -76,7 +76,6 @@ away = away.map(stat => {
         home = home.filter(stat => statNames.includes(stat.type))
         away = away.filter(stat => statNames.includes(stat.type))
 
-        console.log(home)
         setHomeStats(home)
         setAwayStats(away)
 

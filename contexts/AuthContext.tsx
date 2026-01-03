@@ -4,6 +4,7 @@ import { createContext, useContext } from "react";
 export type AuthData = {
     session?: Session | null,
     profile?: any,
+    preferences?: any,
     isLoading: boolean,
     isLoggedIn: boolean,
 }
@@ -11,6 +12,7 @@ export type AuthData = {
 export const AuthContext = createContext<AuthData>({
     session: null,
     profile: null,
+    preferences: null,
     isLoading: true,
     isLoggedIn: false,
 })

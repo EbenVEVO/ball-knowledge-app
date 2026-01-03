@@ -7,7 +7,7 @@ const UserCommentInput = ({onSubmit, userComment, setUserComment, profile, reply
   return (
     <>
    
-      <View className='flex flex-row items-center gap-3 p-2 '>
+      <View className='flex flex-row items-center gap-3 p-2  '>
               <Image source={{ uri: profile?.profile_pic }} className='rounded-full' style={{ width: 35, height: 35 }} />
             <View className={`flex flex-col justify-center ${replyingTo ? 'rounded-xl': 'rounded-full'}  flex-1`} style={{ borderWidth: 1 }}>
               {replyingTo && 

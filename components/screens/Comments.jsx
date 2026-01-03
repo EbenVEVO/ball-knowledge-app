@@ -8,7 +8,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { comment } from 'postcss';
 import Comment from '../ui/Comment';
 
-export default function Comments({post_id}) {
+export default function Comments({post_id, type}) {
     const {session, profile} = useAuth()
     const [userComment, setUserComment]= useState('')
     const [comments, setComments] = useState([])
@@ -21,6 +21,8 @@ export default function Comments({post_id}) {
     const flatListRef = useRef(null)
     const timeoutRefs = useRef({})
     const fadeAnims = useRef({})
+
+    const table = type === 'match' ? 'social_match_comments' : 'social_player_comments'
 
     const onViewableItemsChanged = useCallback(({viewableItems}) => {
         const currentlyVisible = new Set(viewableItems.map(item => item.item.id))
@@ -50,12 +52,12 @@ export default function Comments({post_id}) {
     const sendComment = async () =>{
         const commentData = {
           comment: userComment,
-          player_performance_id: post_id,
+          post_id: post_id,
           user_id: profile?.user_id
         }
         if(replyingTo) commentData.parent_id = replyingTo.id
-        console.log('insert', commentData)
-        const {data, error}= await supabase.from('social_player_comments').insert(commentData)
+        console.log('insert', commentData, 'into', table)
+        const {data, error}= await supabase.from(table).insert(commentData)
         if(error){
           console.log(error)
         }
@@ -73,9 +75,9 @@ export default function Comments({post_id}) {
 
     useEffect(()=>{
       const fetchComments = async ()=>{
-        const {data, error} = await supabase.from('social_player_comments').select(`*,
+        const {data, error} = await supabase.from(table).select(`*,
           user: user_id(profile_pic, username)
-        `).eq('player_performance_id', post_id)
+        `).eq('post_id', post_id)
         .is('parent_id',null)
         .order('created_at', {ascending: false })
         if(error){
@@ -98,13 +100,13 @@ export default function Comments({post_id}) {
       .channel(`comments-${post_id}`)
       .on('postgres_changes', { event: '*',
        schema: 'public', 
-       table: 'social_player_comments',
-      filter: `player_performance_id=eq.${post_id}`
+       table: table,
+      filter: `post_id=eq.${post_id}`
       }, async (payload) => {
         console.log('Realtime event received:', payload)
 
         if(payload.eventType === 'INSERT'){
-          const {data:newComment} = await supabase.from('social_player_comments').
+          const {data:newComment} = await supabase.from(table).
           select(`*, user:user_id(username, profile_pic)`)
           .eq('id', payload.new.id)
           .single()
@@ -186,6 +188,7 @@ export default function Comments({post_id}) {
         isNew={isNew}
         backgroundColor={backgroundColor}
         setReplyingTo={setReplyingTo}
+        type={type}
       />
   )}
   

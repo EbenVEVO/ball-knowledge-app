@@ -4,12 +4,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link } from 'expo-router';
 import PlayerStats from './PlayerStats';
+import Entypo from '@expo/vector-icons/Entypo';
+import { EmojiStyle } from 'emoji-picker-react';
+import EmojiPicker from 'emoji-picker-react';
 import Comments from '../screens/Comments';
+import ReactionSelector from './ReactionSelector';
 
 export const PlayerModal = ({isVisible, onClose, stats, player}) => {
     const [playerStats, setPlayerStats] = useState(null);
     const [commentsScreen, setCommentsScreen] = useState(false)
-    const [statsScreen, setStatsScreen] = useState(true)
+    const [reactionPicker, setReactionPicker] = useState(false)
 
 
       useEffect(() => {
@@ -18,7 +22,6 @@ export const PlayerModal = ({isVisible, onClose, stats, player}) => {
         Object.entries(stats).map(([key, value]) => [key, value === null ? 0 : value])
         
       )
-      console.log(newStats)
         setPlayerStats(newStats)
       },[stats])
     const dobtoage = (dob) => {
@@ -51,18 +54,19 @@ if (player.player_id === 0) return null
                         </View>
                     </TouchableOpacity>
                 </Link>
-                <TouchableOpacity
-                    onPress={()=>{
-                        console.log('comments', commentsScreen, 'stats', statsScreen)
-                        setCommentsScreen(!commentsScreen)
-                        setStatsScreen(!statsScreen)
-                    }}
-                >
-                    <Text>Toogle</Text>
-                </TouchableOpacity>
+
+                <Link href={{pathname: '/fixture/[id]', params:{id: stats.fixture_id}}} asChild style={{position: 'absolute', top: 10, left: 10, zIndex: 10}}>
+                    <TouchableOpacity onPress={onClose}>
+                        <View className='flex flex-row items-center '>
+                                <Text className='font-supremeBold text-sm '> Go to Match </Text>
+                        </View>
+                    </TouchableOpacity>
+                </Link>
+
             <View className='flex flex-col gap-5 p-10'> 
             <View className='flex flex-col justify-center items-center '>
             
+    
              <View className='relative'>
       <Image 
         source={{uri: playerStats?.player.photo}} 
@@ -78,8 +82,8 @@ if (player.player_id === 0) return null
        </View>
             <Text className='text-center font-supreme tracking-tight text-xl' > {player.player_name}</Text>
             </View>
+            {!commentsScreen?           
             <View className='flex flex-row justify-center items-center'>
-
                 <View className='flex flex-col items-center gap-2' style={{flex:1}}>
                     <View className='flex flex-row items-center gap-2' >
                     <Image className='rounded-full' source={{ uri: playerStats?.player.flag.flag_url }} style={{width: 30, height: 30}} resizeMode='contain' />
@@ -91,13 +95,45 @@ if (player.player_id === 0) return null
                     <Text className='font-supreme tracking-tight text-lg'>{dobtoage(playerStats?.player.DOB)}</Text>
                     <Text className='font-supreme tracking-tight text-sm text-gray-600'>Age</Text>
                 </View>
-
-            </View>
-                <View className='justify-center flex items-center gap-2'>
-                    <TouchableOpacity className='items-center flex flex-row gap-2 px-5 p-2 rounded-full' style={{borderWidth:1}}>
-                        <FontAwesome name="comment" size={20} color="#A477C7"/>
-                        <Text>11.1K</Text>
+            </View>:
+                <View className='flex flex-row justify-center items-center'>
+                    <View className='flex flex-col items-center gap-2' style={{flex:1}}>
+                        <Text>{playerStats.rating}</Text>
+                        <Text>Match Rating</Text>
+                    </View>
+                    <View className='flex flex-col items-center gap-2' style={{flex:1}}>
+                        <Text>{playerStats.goals}</Text>
+                        <Text>Goals</Text>
+                    </View>
+                    <View className='flex flex-col items-center gap-2' style={{flex:1}}>
+                        <Text>{playerStats.assist}</Text>
+                        <Text>Assists</Text>
+                    </View>
+           
+                    
+                 </View>
+            }
+                <View className='justify-center flex items-center gap-5 flex-row-reverse relative'>
+                    <TouchableOpacity className='items-center flex flex-row gap-2 px-5 p-2 rounded-full' style={{borderWidth:1}}
+                        onPress={()=>setCommentsScreen(!commentsScreen)}
+                    >   
+                        { !commentsScreen?
+                        <><FontAwesome name="comment" size={20} color="#A477C7" /><Text className='font-supreme'>{stats.comment_count}</Text></>
+                        :
+                        <><Ionicons name="stats-chart" size={24} color="#A477C7" /> <Text className='font-supreme'>Stats</Text></>
+                        }
                     </TouchableOpacity>
+
+                    <TouchableOpacity className="flex flex-row items-center gap-1 " 
+                        onPress={()=>setReactionPicker(!reactionPicker)}
+                    >
+                        <Entypo name="emoji-happy" size={24} color="black" />
+                        <Text className='text-lg font-supreme'>2.3k</Text>
+                    </TouchableOpacity>
+                    
+                    <View className='absolute top-10 z-999 '>
+                        <ReactionSelector height={400} width={600}/>
+                    </View>
                 </View>
             </View>{!commentsScreen ?
             <div style={{ 
