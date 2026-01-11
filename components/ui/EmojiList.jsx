@@ -9,10 +9,9 @@ const EMOJI_MARGIN = 5
 
 const ITEM_WIDTH = EMOJI_SIZE + EMOJI_MARGIN * 2
 
-const EmojiList = ({onSelect}) => {
+const EmojiList = ({onSelect, headerComponent}) => {
   const {preferences, session, profile} = useAuth()
 
-  const [favorites, setFavorites] = useState([])
 
   
    const CATEGORY_ICONS = {
@@ -64,18 +63,14 @@ const EmojiList = ({onSelect}) => {
 
     },[width, emojisByCategory])
 
-    console.log(emojiData)
-
     const viewabilityConfig = useRef({
       viewAreaCoveragePercentThreshold: 10,
     }).current
 
     const onViewableItemsChanged = useCallback(({viewableItems})=>{
-      console.log('trigger')
       const firstVisibleItem = viewableItems.find(item => item.section && item.index === 0)
 
       if(firstVisibleItem){
-        console.log('visible', firstVisibleItem.section.category)
         setActiveCategory(firstVisibleItem.section.category)
       }
     },[])
@@ -112,10 +107,9 @@ const EmojiList = ({onSelect}) => {
       })
     }
   return (
-    <View className='relative' style={{height:'auto'}} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-      <Text>EmojiList</Text>
-
+    <View style={{flex:1}} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <SectionList
+        ListHeaderComponent={headerComponent}
         ref = {emojiListRef}
         sections = {emojiData}
         keyExtractor={(item, idx)=> item+idx} 
@@ -125,7 +119,7 @@ const EmojiList = ({onSelect}) => {
         viewablityConfig= {viewabilityConfig}
         stickySectionHeadersEnabled={false}
         />
-      <View className = 'bg-white absolute bottom-0 p-3 w-full justify-center' >
+      <View className = 'bg-white sticky bottom-0 p-3 w-full justify-center' >
           <View className='flex flex-row items-center justify-center gap-10'>
               {Object.entries(CATEGORY_ICONS).map(([category, image], index)=>(
                 
@@ -133,7 +127,7 @@ const EmojiList = ({onSelect}) => {
                   className='rounded-xl p-2 items-center'
                   onPress ={()=>scrollToSection(index)}
                   style={{flex:1, backgroundColor: category === activeCategory && '#A477C7'}}>
-                    <Image  source={{ uri: `${TWITTER_EMOJI_BASE}${image}`}} style={{width:EMOJI_SIZE, height:EMOJI_SIZE}}/>
+                    <Image  source={{ uri: `${TWITTER_EMOJI_BASE}${image}`}} style={{width:20, height:20}}/>
                   </TouchableOpacity>
               ))}
           </View>

@@ -20,7 +20,8 @@ export const PlayerGames = ({player, setIsVisible, setPlayerStats, setPlayerInfo
     }, [page, player])
 
     const fetchMatches = async () => {
-        let query = supabase.from('player_stats').select(`*, 
+        let query = supabase.from('player_stats').select(`*,
+            team:team_id(club_name, logo),
             player: player_id (photo, nationality, DOB, country_code, flag: country_code(flag_url)),
             fixture: fixture_id 
                     (date_time_utc, 

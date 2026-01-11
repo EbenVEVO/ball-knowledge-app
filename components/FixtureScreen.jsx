@@ -44,7 +44,6 @@ export const FixtureScreen = ({fixture}) => {
           <FixtureTimeline fixture={fixture} />
           <MatchStats fixture={fixture} />
         </View><FixtureLineups fixture={fixture} />
-        <ReactionSelector/>
         {(playerModalData?.player && playerModalData?.stats) && <PlayerModal
           isVisible={modalVisible}
           onClose={()=>setModalVisible(!modalVisible)}

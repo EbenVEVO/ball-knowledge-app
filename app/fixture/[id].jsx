@@ -47,7 +47,7 @@ export default function FixturePage(){
 
       const { data: playerStats, error: playerStatsError } = await supabase
         .from('player_stats')
-        .select(`*, player:player_id (photo, nationality, DOB, country_code, flag: country_code(flag_url))`)
+        .select(`*, team:team_id(club_name, logo), player:player_id (photo, nationality, DOB, country_code, flag: country_code(flag_url))`)
         .eq('fixture_id', id)
 
       if (playerStatsError) {

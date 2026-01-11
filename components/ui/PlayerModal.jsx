@@ -1,5 +1,5 @@
 import {Modal as RNModal, StyleSheet, Text, View, TouchableWithoutFeedback, Platform, Image, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link } from 'expo-router';
@@ -9,15 +9,72 @@ import { EmojiStyle } from 'emoji-picker-react';
 import EmojiPicker from 'emoji-picker-react';
 import Comments from '../screens/Comments';
 import ReactionSelector from './ReactionSelector';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext'
+
+const TWITTER_EMOJI_BASE = "https://cdn.jsdelivr.net/npm/emoji-datasource-twitter/img/twitter/64/";
 
 export const PlayerModal = ({isVisible, onClose, stats, player}) => {
+    const {session} = useAuth()
     const [playerStats, setPlayerStats] = useState(null);
     const [commentsScreen, setCommentsScreen] = useState(false)
     const [reactionPicker, setReactionPicker] = useState(false)
+    const [topReactions, setTopReactions] = useState([])
+    const [reactions, setReactions] = useState([])
+    const [reactionCount, setReactionCount] = useState()
 
+    useEffect(()=> {
+
+        const fetchReactionCount = async () => {
+            const {data, count, error} = await supabase.from('social_player_reactions').select(`*`, {count: 'exact'}).eq('post_id', stats.id)
+            if(!error){
+            console.log(count)
+            setReactionCount(count) 
+            setReactions(data)
+            const reactionsObject = data.reduce((acc, val)=>{
+                const emoji = val.emoji.unified
+                if(!acc[emoji]){
+                  acc[emoji]= {emoji: val.emoji, count: 0}
+                }
+                acc[emoji].count++
+                return acc
+              },{})
+            console.log(Object.entries(reactionsObject) )
+            const topReacts = Object.entries(reactionsObject) 
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 3)
+            .map(([reaction, count]) => ({ reaction, count }))
+
+            setTopReactions(topReacts)
+            }
+        }
+        fetchReactionCount()
+        const channel = supabase
+        .channel(`reactions-${stats.id}`)
+        .on(
+            'postgres_changes',
+            {
+                event: '*', 
+                schema: 'public',
+                table: 'social_player_reactions',
+                filter: `post_id=eq.${stats.id}`
+            },
+            (payload) => {
+                console.log('Reaction change:', payload)
+                fetchReactionCount()
+            }
+        )
+        .subscribe()
+
+    // Cleanup subscription on unmount
+    return () => {
+        supabase.removeChannel(channel)
+    }
+    },[stats])
 
       useEffect(() => {
         if (!stats) return
+        
         const newStats = Object.fromEntries(
         Object.entries(stats).map(([key, value]) => [key, value === null ? 0 : value])
         
@@ -79,6 +136,12 @@ if (player.player_id === 0) return null
         }}>
             <Text className='text-center font-supremeBold text-sm text-white'>{parseFloat(playerStats?.rating).toFixed(1)}</Text>
         </View>}
+
+        <View className=' rounded-full items-center justify-center 'style={{position: 'absolute', zIndex: 1, padding: 1, bottom: -4, right:-15, paddingHorizontal: 6}}>
+            <Image 
+                className='rounded-full' source={{uri:playerStats?.team.logo}} style={{width:25, height:25}}
+            />
+        </View>
        </View>
             <Text className='text-center font-supreme tracking-tight text-xl' > {player.player_name}</Text>
             </View>
@@ -127,13 +190,47 @@ if (player.player_id === 0) return null
                     <TouchableOpacity className="flex flex-row items-center gap-1 " 
                         onPress={()=>setReactionPicker(!reactionPicker)}
                     >
-                        <Entypo name="emoji-happy" size={24} color="black" />
-                        <Text className='text-lg font-supreme'>2.3k</Text>
+                       {!reactions.some(reaction  => reaction.user_id === session.user.id) 
+                       ?
+                       <>
+                        <Entypo name="emoji-happy" size={24} color="black" /><Text className='text-lg font-supreme'>{reactionCount}</Text><View className='flex flex-row gap-2'>
+                            {topReactions.map(reaction => (
+                            <Image source={{ uri: `${TWITTER_EMOJI_BASE}${reaction.count.emoji.image}` }} style={{ width: 20, height: 20 }} />
+                            ))}
+                        </View>
+                        </>
+                        :
+                        <>
+                        <View className='flex flex-row gap-2'>
+                        {topReactions.map(reaction =>(
+                            <Image source={{ uri: `${TWITTER_EMOJI_BASE}${reaction.count.emoji.image}`}} style={{width:20, height:20}}/>
+                        ))}
+                        </View>                        
+                        <Text className='text-lg font-supremeBold ml-3' style={{color:'#A477C7'}}>{reactionCount}</Text>
+                        </>
+                        }
                     </TouchableOpacity>
                     
-                    <View className='absolute top-10 z-999 '>
-                        <ReactionSelector height={400} width={600}/>
-                    </View>
+                    <RNModal
+                        visible={reactionPicker}
+                        transparent={true}
+                        animationType='fade'
+                        onRequestClose={()=>setReactionPicker(false)}
+                    >
+                        <TouchableWithoutFeedback onPress={()=>setReactionPicker(false)}>
+                            <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'}}>
+                                <TouchableWithoutFeedback 
+                                className ="rounded-xl bg-white "
+                                    style={{}}
+                                    onPress={(e) => e.stopPropagation()}>
+                                    <ReactionSelector height={400} width={600}
+                                    post_id={stats.id}
+                                    />
+                                </TouchableWithoutFeedback>
+                            </View>
+                        </TouchableWithoutFeedback>
+
+                    </RNModal>
                 </View>
             </View>{!commentsScreen ?
             <div style={{ 

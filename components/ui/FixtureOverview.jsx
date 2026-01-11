@@ -62,10 +62,13 @@ export const FixtureOverview = ({fixture}) => {
             <MaterialIcons name="stadium" size={20} color="black" />
             <Text className='font-supreme'>{fixture?.stadium_name}</Text>
         </View>
+        <Link href={{pathname: '/competition/[id]', params:{id: fixture?.competition.id}}}>
         <View className='flex flex-row items-center gap-2'>
+            
             <Image source={{ uri: fixture?.competition.logo }} style={{width: 15, height: 15}} resizeMode='contain' />
             <Text className='font-supreme'>{fixture?.round}</Text>
         </View>
+        </Link>
         </View>
         <View className='border-b border-gray-300  w-full' />
         

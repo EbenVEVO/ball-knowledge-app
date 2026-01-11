@@ -152,7 +152,7 @@ const Comment = ({comment, isNew, backgroundColor, setReplyingTo, reply_comment,
               <Text>Reply</Text>
             </Pressable>
             <Entypo name="dots-three-horizontal" size={15} color="gray" />
-            <View  style={{flex:1, flexDirection:'row', gap: 5}}>
+            <View className='items-center' style={{flex:1, flexDirection:'row', gap: 5}}>
               <Pressable
                 onPress={()=>handleLike(comment.id)}
               >
