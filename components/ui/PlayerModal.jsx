@@ -28,7 +28,6 @@ export const PlayerModal = ({isVisible, onClose, stats, player}) => {
         const fetchReactionCount = async () => {
             const {data, count, error} = await supabase.from('social_player_reactions').select(`*`, {count: 'exact'}).eq('post_id', stats.id)
             if(!error){
-            console.log(count)
             setReactionCount(count) 
             setReactions(data)
             const reactionsObject = data.reduce((acc, val)=>{
@@ -39,7 +38,6 @@ export const PlayerModal = ({isVisible, onClose, stats, player}) => {
                 acc[emoji].count++
                 return acc
               },{})
-            console.log(Object.entries(reactionsObject) )
             const topReacts = Object.entries(reactionsObject) 
             .sort(([, a], [, b]) => b - a)
             .slice(0, 3)

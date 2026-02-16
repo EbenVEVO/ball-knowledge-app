@@ -13,7 +13,7 @@ export const FixtureTimeline = ({fixture}) => {
     if (fixture?.away_team?.colors) {
         awayColors = fixture?.away_team?.colors
     }
-    const [fistHalfevents, setfirstHalfEvents] = useState([])
+    const [firstHalfevents, setfirstHalfEvents] = useState([])
     const [secondHalfEvents, setsecondHalfEvents] = useState([])
     const darkenColor = (hex, percent = .2) => {
   if (!hex) return "#000000"; 
@@ -63,7 +63,7 @@ export const FixtureTimeline = ({fixture}) => {
       </View>
         <View className='flex flex-row items-center p-2 px-5'>
             <View className='w-full'>
-            {fistHalfevents.map((event, index) => {
+            {firstHalfevents.map((event, index) => {
                     const playerOneStats = fixture.playerStats.find(stat => stat.player_id === event.player_id)
                     const playerTwoStats = fixture.playerStats.find(stat => stat.player_id === event.player2_id)
                     const combinedLineups = [...fixture.lineups[0].starting_lineup, ...fixture.lineups[0].substitutes, ...fixture.lineups[1].starting_lineup, ...fixture.lineups[1].substitutes]

@@ -14,7 +14,10 @@ export default function FixturePage(){
           `*,
           home_team:home_team_id (club_name,logo,id,colors),
           away_team:away_team_id (club_name,logo,id,colors),
-          competition:league_id (name,id,logo)`
+          competition:league_id (name,id,logo),
+          season:season_id(id, competition_name, competition_id, season, current, start_date, end_date)
+          `
+          
         )
         .eq('id', id)
         .single()

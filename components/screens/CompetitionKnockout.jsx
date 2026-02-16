@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const CompetitionKnockout = ({competition}) => {
+const CompetitionKnockout = ({competition, season}) => {
   return (
     <View>
       <Text>CompetitionKnockout</Text>

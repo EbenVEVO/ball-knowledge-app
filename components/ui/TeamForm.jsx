@@ -103,8 +103,8 @@ const getResultColor = (result) => {
     }
 }
   return (
-    <View className="flex flex-col p-5 bg-white justify-center rounded-xl shadow-xl  " style={{flexWrap: 'wrap'}}>
-      <Text className="text-2xl font-supremeBold" style={{color: colors[0]}}>Team Form</Text>
+    <View className="flex flex-col p-5 bg-white justify-center rounded-xl " style={{flex:1}}>
+      <Text className="text-2xl font-supremeBold" style={{color: colors[0] === '#FFFFFF'? colors[1] : colors[0]}}>Team Form</Text>
         <View className="flex flex-row gap-5 justify-center p-5">
             {form.map((item, index) => (
                 <TouchableOpacity>

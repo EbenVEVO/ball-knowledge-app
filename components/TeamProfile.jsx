@@ -37,13 +37,11 @@ export const TeamProfile = ({club}) => {
 
   const handleFollow = async ()=>{
     if (following){
-      console.log('unfollow')
      const {error} = await supabase.from('users_followed_teams').delete().eq('user_id', session.user.id).eq('team_id', club.id)
      if (error) console.log(error)
       setFollowing(false)
     }
     else {
-      console.log('follow')
       const {data, error} = await supabase.from('users_followed_teams').insert({user_id: session.user.id, team_id: club.id})
       if (error) console.log(error)
       else{

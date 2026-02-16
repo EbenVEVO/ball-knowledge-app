@@ -9,6 +9,7 @@ import { on } from 'events'
 import { usePlayerModalStore } from '../contexts/modalStore'
 import Comments from './screens/Comments'
 import ReactionSelector from './ui/ReactionSelector'
+import { FixturesTopBar } from './navigation/FixturesTopBar'
 
 export const FixtureScreen = ({fixture}) => {
   const {playerModalData} = usePlayerModalStore()
@@ -24,34 +25,16 @@ export const FixtureScreen = ({fixture}) => {
   return (
     <View style={styles.container}>
       <FixtureOverview fixture = {fixture}/>
-      <View>
-        <TouchableOpacity
-          onPress={()=>setCommentsScreen(!commentsScreen)}
-        >
-          <Text>Toggle Comments Screen</Text>
-        </TouchableOpacity>
-      </View>
-      {commentsScreen ?
-      <View>
-        <Comments
-          post_id={fixture.id}
-          type={'match'}
-        />
-      </View>:
+      <FixturesTopBar fixture={fixture}/>
 
-      <>
-      <View className='flex flex-row  p-5  w-full  gap-5 '>
-          <FixtureTimeline fixture={fixture} />
-          <MatchStats fixture={fixture} />
-        </View><FixtureLineups fixture={fixture} />
+    
+   
         {(playerModalData?.player && playerModalData?.stats) && <PlayerModal
           isVisible={modalVisible}
           onClose={()=>setModalVisible(!modalVisible)}
           player={playerModalData.player}
           stats={playerModalData.stats}
-        />}
-        </>
-        }
+        />}        
     </View>
   )
 }

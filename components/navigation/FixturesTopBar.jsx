@@ -1,18 +1,17 @@
 import { createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import CompetitionKnockout from '../screens/CompetitionKnockout';
-import CompetitionOverview from '../screens/CompetitionOverview';
-import CompetitionSeasons from '../screens/CompetitionSeasons';
-import CompetitionTable from '../screens/CompetitionTable';
-import CompetitionFixtures from '../screens/CompetitionFixtures';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, Animated, Pressable} from 'react-native'
 import { useWindowDimensions } from 'react-native';
 import React from 'react'
+import MatchOverview from '../screens/MatchOverview';
+import FixtureLineup from '../screens/FixtureLineup';
+import FixtureStats from '../screens/FixtureStats';
+import FixtureTable from '../screens/FixtureTable';
 
-export const TopBar = ({competition, season, seasons, cup}) => {
+export const FixturesTopBar = ({fixture}) => {
   const {height} = useWindowDimensions();
  const Tab = createMaterialTopTabNavigator();
- if (!competition) console.log('error no competition')
-  else console.log(competition);
+ if (!fixture) console.log('error no fixture')
+  else console.log(fixture);
   return (
     <Tab.Navigator
     style={{flex: 1, height: height}}
@@ -22,12 +21,12 @@ export const TopBar = ({competition, season, seasons, cup}) => {
       
     }}
     >
-        <Tab.Screen name="Overview" children={
-          (props) => (<CompetitionOverview {...props} competition={competition} season={season} />)} />
-        <Tab.Screen name="Table" children={(props) => (<CompetitionTable {...props} competition={competition} season={season}/>)} />
-        {cup && <Tab.Screen name="Knockout" children={(props) => (<CompetitionKnockout {...props} competition={competition} season={season}/>)}/>}
-        <Tab.Screen name="Fixtures" children={(props) => (<CompetitionFixtures {...props} competition={competition} season={season}/>)}/>
-        <Tab.Screen name="Seasons" children={(props) => (<CompetitionSeasons {...props} competition={competition} seasons={seasons}/>)}/>
+        <Tab.Screen name="Match" children={
+          (props) => (<MatchOverview fixture={fixture}/>)} />
+        <Tab.Screen name="Lineup" children={(props) => (<FixtureLineup fixture={fixture}/>)} />
+        <Tab.Screen name='Table' children={(props)=> (<FixtureTable fixture={fixture}/>)}/>
+        <Tab.Screen name="Stats" children={(props) => (<FixtureStats fixture={fixture}/>)}/>
+
     </Tab.Navigator>
   )
 }
@@ -85,7 +84,7 @@ const CustomTabBar = ({ state, descriptors, navigation, position}) => {
     );
   };
 
-export default TopBar
+export default FixturesTopBar
 
 const styles = StyleSheet.create({
     tabContainer: {

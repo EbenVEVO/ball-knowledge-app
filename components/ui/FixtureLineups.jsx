@@ -86,6 +86,8 @@ export const FixtureLineups = ({fixture}) => {
   }, [fixture])
 
   const lineupFormation = (lineup) =>{
+    console.log('lineup in formation ', lineup)
+
     const players_by_row = {}
       lineup.forEach((player) => {
        const [row, column] = player.grid.split(':').map(Number)

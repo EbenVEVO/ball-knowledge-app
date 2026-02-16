@@ -3,27 +3,9 @@ import React, { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase';
 import { Link } from 'expo-router';
 
-export const PlayerLastGames = ({player, club}) => {
+export const PlayerLastGames = ({player}) => {
     const [lastGames, setLastGames] = useState(null)
-    let colors = ['#655085', '#FFFFFF']
-  if (club?.colors) {
-    colors = club?.colors
-    console.log(colors)
-  } 
-  const darkenColor = (hex, percent = .2) => {
-  if (!hex) return "#000000"; 
-  hex = hex.replace("#", "");
 
-  let r = parseInt(hex.substring(0,2), 16);
-  let g = parseInt(hex.substring(2,4), 16);
-  let b = parseInt(hex.substring(4,6), 16);
-
-  r = Math.max(0, r - (r * percent ));
-  g = Math.max(0, g - (g * percent ));
-  b = Math.max(0, b - (b * percent ));
-
-  return `rgb(${r}, ${g}, ${b})`;
-};
 const formatDate = (date) => {
       const options = { day: 'numeric', month: 'short', year: 'numeric' };
       return new Date(date).toLocaleDateString('en-US', options);
@@ -45,8 +27,8 @@ const formatDate = (date) => {
     fetchGames()
   }, [player])
   return (
-    <View className='rounded-2xl bg-white shadow-xl w-full ' style={{flex: 1}}>
-      <Text className='text-2xl font-supremeBold p-2'> Last Games</Text>
+    <View className='rounded-2xl bg-white w-full ' style={{flex: 1}}>
+      <Text className='text-2xl font-supremeBold p-2'> Last 5</Text>
        <View className='border-b border-gray-300  w-full' />
       <View className='flex flex-col'>
         {lastGames?.map((game, index) =>

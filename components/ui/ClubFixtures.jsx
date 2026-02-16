@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import {Link} from 'expo-router'
 import {FlashList} from '@shopify/flash-list'
 
-export const Fixtures = ({club}) => {
+export const ClubFixtures = ({club}) => {
 
     const FIXTURES_PER_PAGE = 10
     const [ fixtures, setFixtures] = useState([])
@@ -82,6 +82,7 @@ export const Fixtures = ({club}) => {
         return
       }
       const anchor = anchorFixtures.at(-1).date_time_utc
+      console.log(anchor)
       setAnchorDate(anchor)
       
       const {data: firstFixtures , error2} = await supabase.from('fixtures').select(`*,
@@ -204,8 +205,8 @@ export const Fixtures = ({club}) => {
                 <Image source={{ uri: item.home_team.logo }} style={styles.clublogo} resizeMode='contain' />
             </View>
             {item.match_status == 'Match Finished' ?
-            <View className='p-2 px-5 rounded-full  justify-center' style={{backgroundColor: getResultColor(item.result)}}>
-                <Text className='text-lg text-white font-supremeBold'>{item.score}</Text>
+            <View className='p-2 px-5 rounded-full  justify-center' style={{backgroundColor: 'green'}}>
+                <Text className='text-lg text-white font-supremeBold'>{`${item.home_score} - ${item.away_score}`}</Text>
             </View>
             :
             <View className='p-2 px-5  justify-center' >
@@ -276,4 +277,4 @@ const styles = StyleSheet.create({
     }
 
 })
-export default Fixtures
+export default ClubFixtures

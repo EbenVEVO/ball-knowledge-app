@@ -54,25 +54,33 @@ export default function ProfileScreen() {
          
           if (!profile) return
           
-          console.log(profile, 'infetch')
           const {data: players, error: playersError} =  await supabase.from('users_followed_players').select(`*,
              player:player_id (transfermarkt_name, photo)
             `).eq('user_id', profile.user_id)
           const {data: clubs, error: clubsError} =  await supabase.from('users_followed_teams').select(`*,
             team:team_id(club_name, logo)
             `).eq('user_id', profile.user_id)
+          const{data: competitions, error: competitionsError} = await supabase.from('users_followed_competitions').select(`*, 
+            competition: followed_competition(name, logo)
+          `).eq('user_id', profile.user_id)
           if (playersError) console.log(playersError)
           if (clubsError) console.log(clubsError)
-            console.log(clubs)
-            console.log(players)
+          if (competitionsError) console.log(competitionsError)
+          
+          console.log(clubs)
+          console.log(players)
+          console.log(competitions)
           
           let following = []
           
-          players.forEach((player)=>{
+          players?.forEach((player)=>{
             following.push({name: player.player.transfermarkt_name, photo: player.player.photo, type: 'player', id: player.player_id})
           })
-          clubs.forEach((club)=>{
+          clubs?.forEach((club)=>{
             following.push({name: club.team.club_name, photo: club.team.logo, type: 'club', id: club.team_id})
+          })
+          competitions?.forEach((competition)=>{
+            following.push({name: competition.competition.name, photo: competition.competition.logo, type: 'competition', id: competition.followed_competition})
           })
           console.log(following)
           setFollowing(following)

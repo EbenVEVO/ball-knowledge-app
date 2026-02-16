@@ -45,7 +45,7 @@ const PlayerStats = ({playerStats}) => {
                   <Text className='font-supreme tracking-tight text-lg'>{playerStats?.penalties_scored}/{playerStats?.penaties_missed + playerStats?.penalties_scored}</Text>
               </View>
 
-          </View><Text className='py-3 font-supremeBold text-xl'>Defence</Text><View className='flex flex-col gap-3 py-3'>
+          </View><Text className='py-3 font-supremeBold text-xl'>Defense</Text><View className='flex flex-col gap-3 py-3'>
               <View className='flex flex-row items-center justify-between'>
                   <Text className='font-supreme tracking-tight text-lg'>Tackles Won</Text>
                   <Text className='font-supreme tracking-tight text-lg'>{playerStats?.tackles}</Text>

@@ -1,10 +1,14 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import LeagueTable from '../ui/LeagueTable'
+import SeasonSelect from '../ui/SeasonSelect'
 
-const CompetitionTable = ({competition}) => {
+const CompetitionTable = ({competition, season}) => {
   return (
     <View>
-      <Text>CompetitionTable</Text>
+      <LeagueTable
+        season={season}
+      />
     </View>
   )
 }
