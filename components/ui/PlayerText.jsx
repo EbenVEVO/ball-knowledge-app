@@ -7,7 +7,7 @@ export const PlayerText = ({children, player, stats, photo}) => {
     const [playerStats, setPlayerStats] = useState(null);
     useEffect(() => {
             if (!stats) return
-            newStats = Object.fromEntries(
+            const newStats = Object.fromEntries(
             Object.entries(stats).map(([key, value]) => [key, value === null ? 0 : value])
             
           )

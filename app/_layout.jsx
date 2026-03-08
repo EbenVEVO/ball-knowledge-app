@@ -7,7 +7,7 @@ import {logout} from '../auth/authfunctions'
 
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { TouchableOpacity, View, Text, SafeAreaView, ScrollView } from 'react-native';
+import { TouchableOpacity, View, Text, SafeAreaView, ScrollView, Platform } from 'react-native';
 import Search from '@/components/ui/Search';
 import AuthProvider from '@/providers/AuthProvider';
 
@@ -29,7 +29,10 @@ export default function RootLayout() {
 
     <AuthProvider>
       <SafeAreaView style={{ flex: 1 }}>
-          <WebLayout/>
+        {Platform.OS === 'web' ?
+          <WebLayout/>:
+          <Slot/>
+          }
       </SafeAreaView>
     </AuthProvider>
   )

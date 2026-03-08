@@ -1,4 +1,4 @@
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, Platform } from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {PlayerText} from '../ui/PlayerText'
@@ -48,7 +48,7 @@ export const FixtureTimeline = ({fixture}) => {
     
 
   return (
-    <View className='flex flex-col bg-white rounded-2xl' style={{flex: 1}}>
+    <View className='flex flex-col bg-white rounded-2xl' style={{flex: Platform.OS === 'web' && 1}}>
       <Text className='text-xl text-black font-supremeBold p-5 text-center'>Timeline</Text>
       <View className='flex flex-row items-center justify-between p-2 px-5'>
         <View className='flex flex-row items-center gap-2 p-2 px-5 ' style={{backgroundColor:(homeColors[0]), width: '50%', borderBottomLeftRadius: 10, borderTopLeftRadius: 10}} >
@@ -75,10 +75,10 @@ export const FixtureTimeline = ({fixture}) => {
                         {event.team_id === fixture.home_team.id ?
                             <>                                
                             <View className='relative'>
-                                <View className='rounded-full  items-center justify-center p-5' style={{ width: 10, height: 30, backgroundColor: '#E8E8E8' }}>
+                               <View style={{ minWidth: 36, height: 36, backgroundColor: '#E8E8E8', borderRadius: 18, alignItems: 'center', justifyContent: 'center',paddingHorizontal: 8}}>
                                         <Text className='text-lg  font-supremeBold'>{event.time_elapsed}'</Text>
                                         {event.time_extra !== null&&
-                                        <View className='rounded-full absolute items-center justify-center p-2 ' style={{ width: 5, height: 10, backgroundColor: '#E8E8E8', bottom: -4 , right: -2 , borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.2)' }}>
+                                <View style={{ position: 'absolute', bottom: -10, right: -4,backgroundColor: '#D0D0D0', borderRadius: 8,paddingHorizontal: 3, paddingVertical: 1,borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)'}}>
                                             <Text className='text-xs  font-supreme'>+{event.time_extra}</Text>
                                             </View>
                                             }
@@ -177,10 +177,10 @@ export const FixtureTimeline = ({fixture}) => {
                                 {event.event_details === 'Yellow Card' && <View style={{width: 12, height: 15, backgroundColor: '#FCFF36', borderRadius: 2}}/> }
                                 {event.event_details === 'Red Card' && <View style={{width: 12, height: 15, backgroundColor: 'red', borderRadius: 2}}/>}
                                 <View className='relative'>
-                                <View className='rounded-full  items-center justify-center p-5' style={{ width: 10, height: 30, backgroundColor: '#E8E8E8' }}>
+                               <View style={{ minWidth: 36, height: 36, backgroundColor: '#E8E8E8', borderRadius: 18, alignItems: 'center', justifyContent: 'center',paddingHorizontal: 8}}>
                                         <Text className='text-lg  font-supremeBold'>{event.time_elapsed}'</Text>
                                         {event.time_extra !== null&&
-                                        <View className='rounded-full absolute items-center justify-center p-2 ' style={{ width: 5, height: 10, backgroundColor: '#E8E8E8', bottom: -4 , right: -2 , borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.2)' }}>
+                                <View style={{ position: 'absolute', bottom: -10, right: -4,backgroundColor: '#D0D0D0', borderRadius: 8,paddingHorizontal: 3, paddingVertical: 1,borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)'}}>   
                                             <Text className='text-xs  font-supreme'>+{event.time_extra}</Text>
                                             </View>
                                             }
@@ -207,11 +207,11 @@ export const FixtureTimeline = ({fixture}) => {
                         {event.team_id === fixture.home_team.id ?
                             <>                                
                             <View className='relative'>
-                                <View className='rounded-full  items-center justify-center p-5' style={{ width: 10, height: 30, backgroundColor: '#E8E8E8' }}>
+                               <View style={{ minWidth: 36, height: 36, backgroundColor: '#E8E8E8', borderRadius: 18, alignItems: 'center', justifyContent: 'center',paddingHorizontal: 8}}>
                                         <Text className='text-lg  font-supremeBold'>{event.time_elapsed}'</Text>
                                         {event.time_extra !== null&&
-                                        <View className='rounded-full absolute items-center justify-center p-2 ' style={{ width: 5, height: 10, backgroundColor: '#E8E8E8', bottom: -4 , right: -2 , borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.2)' }}>
-                                            <Text className='text-xs  font-supreme'>+{event.time_extra}</Text>
+                                <View style={{ position: 'absolute', bottom: -10, right: -4,backgroundColor: '#D0D0D0', borderRadius: 8,paddingHorizontal: 3, paddingVertical: 1,borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)'}}>                                            
+                                <Text className='text-xs  font-supreme'>+{event.time_extra}</Text>
                                             </View>
                                             }
                                 </View></View>
@@ -309,10 +309,10 @@ export const FixtureTimeline = ({fixture}) => {
                                 {event.event_details === 'Yellow Card' && <View style={{width: 12, height: 15, backgroundColor: '#FCFF36', borderRadius: 2}}/> }
                                 {event.event_details === 'Red Card' && <View style={{width: 12, height: 15, backgroundColor: 'red', borderRadius: 2}}/>}
                                 <View className='relative'>
-                                <View className='rounded-full  items-center justify-center p-5' style={{ width: 10, height: 30, backgroundColor: '#E8E8E8' }}>
+                               <View style={{ minWidth: 36, height: 36, backgroundColor: '#E8E8E8', borderRadius: 18, alignItems: 'center', justifyContent: 'center',paddingHorizontal: 8}}>
                                         <Text className='text-lg  font-supremeBold'>{event.time_elapsed}'</Text>
                                         {event.time_extra !== null&&
-                                        <View className='rounded-full absolute items-center justify-center p-2 ' style={{ width: 5, height: 10, backgroundColor: '#E8E8E8', bottom: -4 , right: -2 , borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.2)' }}>
+                                <View style={{ position: 'absolute', bottom: -10, right: -4,backgroundColor: '#D0D0D0', borderRadius: 8,paddingHorizontal: 3, paddingVertical: 1,borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)'}}>       
                                             <Text className='text-xs  font-supreme'>+{event.time_extra}</Text>
                                             </View>
                                             }

@@ -5,9 +5,9 @@ import { supabase } from '@/lib/supabase';
 import {Link} from 'expo-router'
 import {FlashList} from '@shopify/flash-list'
 
-export const ClubFixtures = ({club}) => {
+export const ClubFixtures = ({club, perPage = 10}) => {
 
-    const FIXTURES_PER_PAGE = 10
+    const FIXTURES_PER_PAGE = perPage
     const [ fixtures, setFixtures] = useState([])
     const [anchorDate, setAnchorDate] = useState(null)
     const [page, setPage] = useState(0)
@@ -30,7 +30,7 @@ export const ClubFixtures = ({club}) => {
         competition:league_id (name, id, logo)
         `
       )
-      .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
+      .or(`home_team_id.eq.${club?.id},away_team_id.eq.${club?.id}`)
       .eq('match_status', 'Not Started')
       .order('date_time_utc', { ascending: true })
 
@@ -40,7 +40,7 @@ export const ClubFixtures = ({club}) => {
         competition:league_id (name, id, logo)
         `
       )
-      .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
+      .or(`home_team_id.eq.${club?.id},away_team_id.eq.${club?.id}`)
       .eq('match_status', 'Match Finished')
       .order('date_time_utc', { ascending: false })
       .limit(2)
@@ -69,7 +69,7 @@ export const ClubFixtures = ({club}) => {
         competition:league_id (name, id, logo)
         `
       )
-      .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
+      .or(`home_team_id.eq.${club?.id},away_team_id.eq.${club?.id}`)
       .eq('match_status', 'Match Finished')
       .order('date_time_utc', { ascending: false })
       .limit(4)

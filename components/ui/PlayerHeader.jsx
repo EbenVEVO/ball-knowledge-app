@@ -78,7 +78,7 @@ export const PlayerHeader = ({player, club}) => {
         <Text className='text-xl bg-white px-5 rounded-full text-center bg font-supreme' style={{ color: lightenColor(colors.length === 3 ? colors[1] == '#FFFFFF' ? colors[0] : colors[1] : colors[1] === '#FFFFFF' ? colors[0] : colors[1], 0.2) }}> {club?.club_name}</Text>
         <Image
           source={{ uri: player?.photo }}
-          style={{ width: 200, height: 200 }}
+          style={styles.playerImage}
           className='rounded-full ' />
 
       </View>
@@ -108,4 +108,13 @@ const styles = StyleSheet.create({
             default:0,
         }),
         
-    }})
+    },
+    playerImage:{
+      width: Platform.select({web:200, default:100}),
+      height: Platform.select({web:200, default:100})
+
+    }
+  
+  
+  
+  })

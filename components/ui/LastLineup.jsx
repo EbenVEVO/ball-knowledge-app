@@ -9,6 +9,11 @@ export const LastLineup = ({club}) => {
   const [lastXI, setLastXI] = useState()
   const [lineup, setLineup] = useState()
   const [playerStats, setPlayerStats] = useState()
+
+  const handleLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    setContainerWidth(width - 40);
+  };
   useEffect(()=>{
     const fetchLastXI= async () =>{
         const {data, error} = await supabase.from('fixtures').select(`*`)
@@ -153,9 +158,9 @@ export const LastLineup = ({club}) => {
 
   }
   return (
-    <View>
+    <View onLayout={handleLayout}>
       <Text>Last XI</Text>
-      <MiniField>
+      <MiniField width={c}>
         {lastXI?.starting_lineup.map(player=>{
           const position = lineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
           const stats = playerStats.find(stat => stat.player_id === player.player_id)

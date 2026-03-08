@@ -147,7 +147,7 @@ export const PlayerGames = ({player, setIsVisible, setPlayerStats, setPlayerInfo
         )
     }
   return (
-    <View className='rounded-2xl bg-white shadow-xl w-full ' style={{flex: 1}}>
+    <View className='rounded-2xl bg-white shadow-xl w-full ' style={{flex: Platform.OS === 'web'&& 1}}>
                
         <FlatList
         ListHeaderComponent={renderHeader}

@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, Platform, ScrollView } from 'react-native'
 import React from 'react'
 import MatchStats from '../ui/MatchStats'
 import DefenseStats from '../ui/DefenseStats'
@@ -7,7 +7,8 @@ import FixturePlayerStats from '../ui/FixturePlayerStats'
 
 const FixtureStats = ({fixture}) => {
   return (
-    <View>
+    <>
+   {Platform.OS === 'web' ? <View>
       <MatchStats fixture={fixture}/>
       <View className='flex flex-row p-5 gap-5'>
         <View style={{flex:1}}>
@@ -21,6 +22,22 @@ const FixtureStats = ({fixture}) => {
         <FixturePlayerStats fixture={fixture}/>
       </View>
     </View>
+
+    :
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      style={{flex: 1}}
+    >
+      <View className='p-3 gap-5'>
+      <MatchStats fixture={fixture}/>
+      <DefenseStats fixture={fixture}/>
+      <DuelStats fixture={fixture}/>
+      <FixturePlayerStats fixture={fixture}/>
+      </View>
+    </ScrollView>
+    }
+    
+    </>
   )
 }
 

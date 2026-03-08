@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import {PlayerHeader} from './ui/PlayerHeader'
 import {PlayerTopBar} from './navigation/PlayerTopBar'
 import {PlayerInfo} from './ui/PlayerInfo'
-import {ClubCard} from './ui/clubCard'
+import {ClubCard} from './ui/ClubCard'
 import {PlayerHistory} from './ui/PlayerHistory'
 import {PlayerLastGames} from './ui/PlayerLastGames'
 
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
             web:'100%',
             default:'100%',
         }),
-        minHeight: Platform.select({
+       height: Platform.select({
             ios:'100%',
             android:'100%',
             web:'auto',

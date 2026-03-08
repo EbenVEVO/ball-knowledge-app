@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase';
 import { Link } from 'expo-router';
@@ -27,7 +27,7 @@ const formatDate = (date) => {
     fetchGames()
   }, [player])
   return (
-    <View className='rounded-2xl bg-white w-full ' style={{flex: 1}}>
+    <View className='rounded-2xl bg-white w-full  ' style={{flex: Platform.OS === 'web'&& 1}}>
       <Text className='text-2xl font-supremeBold p-2'> Last 5</Text>
        <View className='border-b border-gray-300  w-full' />
       <View className='flex flex-col'>

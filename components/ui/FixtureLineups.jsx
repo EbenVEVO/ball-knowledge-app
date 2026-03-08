@@ -1,15 +1,16 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, Platform, useWindowDimensions } from 'react-native'
 import {Field} from '../ui/Field'
 import { AntDesign } from '@expo/vector-icons'
 import { MaterialIcons } from '@expo/vector-icons'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {LineupPlayer} from '../ui/LineupPlayer'
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, use } from 'react'
 import {PlayerText} from '../ui/PlayerText'
 import PlayerProfile from '../PlayerProfile';
+import VerticalField from './VerticalField';
 
 export const FixtureLineups = ({fixture}) => {
-  const [containerWidth, setContainerWidth] = useState(1000);
+  const [containerWidth, setContainerWidth] = useState(0);
   const [subbedPlayersIn , setSubbedPlayersIn] = useState([])
   const [subbedOutPlayers , setSubbedOutPlayers] = useState([])
   const [ownGoals , setOwnGoals] = useState([])
@@ -19,7 +20,11 @@ export const FixtureLineups = ({fixture}) => {
   const [yellowCards , setYellowCards] = useState([]) 
   const [homeLineup , setHomeLineup] = useState(null)
   const [awayLineup , setAwayLineup] = useState(null)
-  const handleLayout = (event) => {
+  
+
+  const { width: windowWidth } = useWindowDimensions(); 
+  console.log(windowWidth)
+const handleLayout = (event) => {
     const { width } = event.nativeEvent.layout;
     setContainerWidth(width - 40);
   };
@@ -86,7 +91,7 @@ export const FixtureLineups = ({fixture}) => {
   }, [fixture])
 
   const lineupFormation = (lineup) =>{
-    console.log('lineup in formation ', lineup)
+    console.log('substitues ',fixture.lineups[0].substitutes)
 
     const players_by_row = {}
       lineup.forEach((player) => {
@@ -203,29 +208,9 @@ export const FixtureLineups = ({fixture}) => {
       onLayout={handleLayout}
     >
       <View className='flex flex-col p-5' style={{backgroundColor: '#B4FF80'}}>
-      <Text className='text-2xl font-supremeBold'>Lineups</Text>
 
-      <View className='flex flex-row justify-between items-center p-3 px-10'>
-          <View className='flex flex-row items-center gap-2 '>
-            <Image 
-            source={{ uri: fixture.home_team.logo }}
-            style={{width: 20, height: 20}}
-            resizeMode='contain'
-            />
-            <Text className='text-lg font-supremeBold'>{fixture.home_team.club_name}</Text>
-            <Text>{fixture.lineups[0].formation}</Text>
-          </View>
 
-          <View className='flex flex-row items-center gap-2 '>
-            <Text>{fixture.lineups[1].formation}</Text>
-            <Text className='text-lg font-supremeBold'>{fixture.away_team.club_name}</Text>           
-             <Image 
-            source={{ uri: fixture.away_team.logo }}
-            style={{width: 20, height: 20}}
-            resizeMode='contain'
-            />
-          </View>
-      </View>
+      {(Platform.OS === 'web' && containerWidth > 970) ?
       <Field width={containerWidth}>
           {
           !homeLineup ? null : 
@@ -290,7 +275,73 @@ export const FixtureLineups = ({fixture}) => {
           })
         }
         
-      </Field>
+      </Field>:
+      <VerticalField width={containerWidth}>
+        {
+          !homeLineup ? null : 
+          fixture.lineups[0].starting_lineup.map((player, index) => {
+          const position = homeLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
+          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+          const goalScorer = goalScorers.includes(player.player_id)
+          const assist = assisters.includes(player.player_id)
+          const redCard = redCards.includes(player.player_id)
+          const yellowCard = yellowCards.includes(player.player_id)
+          const subbed = subbedOutPlayers.includes(player.player_id)
+          const og = ownGoals.includes(player.player_id)
+          const photo = stats.player.photo
+          if (!position) {
+            return null;
+          }
+          return (
+            <LineupPlayer
+              player={player}
+              photo={photo}
+              stats={stats}
+              position={position}
+              goalScorer={goalScorer}
+              assist={assist}
+              redCard={redCard}
+              yellowCard={yellowCard}
+              subbed={subbed}
+              ownGoal={og}
+              awayTeam={false}
+              horizontal={false}
+            />
+          );
+          })
+        }
+        {
+          !awayLineup ? null : 
+          fixture.lineups[1].starting_lineup.map((player, index) => {
+          const position = awayLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
+          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+          const goalScorer = goalScorers.includes(player.player_id)
+          const assist = assisters.includes(player.player_id)
+          const redCard = redCards.includes(player.player_id)
+          const yellowCard = yellowCards.includes(player.player_id)
+          const subbed = subbedOutPlayers.includes(player.player_id)
+          const og = ownGoals.includes(player.player_id)
+          if (!position) {
+            return null;
+          }
+          return (
+            <LineupPlayer
+              player={player}
+              stats={stats}
+              position={position}
+              goalScorer={goalScorer}
+              assist={assist}
+              redCard={redCard}
+              yellowCard={yellowCard}
+              subbed={subbed}
+              ownGoal={og}
+              awayTeam={true}
+              horizontal={false}
+            />
+          );
+          })
+        }
+      </VerticalField>}
       </View>
       <View className='flex flex-col p-5 bg-white gap-5' >
         <View className='flex flex-row items-center  '>
@@ -305,60 +356,99 @@ export const FixtureLineups = ({fixture}) => {
           </View>
         </View>
 
-        <View className = 'flex flex-col items-center justify-center '>
+        <View className = 'flex flex-col items-center justify-center mt-5'>
         <Text className='text-lg font-supremeBold '>Substitutes</Text>
-        <View className='flex flex-row items-center w-full '>
-          <View className='flex flex-col  ' style={{flex: 1, alignItems: 'flex-start'}}>
-              {fixture.lineups[0].substitutes.map((player, index) => {
-                const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-                const photo = stats.player.photo
-                return(
-                
-                <View key={index} className='flex flex-row items-center gap-5 '>
-                  <View style={{width: 200 , alignItems: 'flex-center', flexDirection: 'row', gap:5}}>
-                    <View style={{width: 30}}>
-                  <Text className='text-lg font-supremeBold '> {player.number}</Text>
-                  </View>
-                    <PlayerText player={player} stats={stats} photo = {photo}>
-                        <Text className='text-lg font-supremeBold' > {player.player_name}</Text>
-                    </PlayerText>
-                    {subbedPlayersIn.includes(player.player_id) &&   <AntDesign name="arrowup" size={20} color="green"  />}
-                    {goalScorers.includes(player.player_id) &&   <MaterialIcons name='sports-soccer' size={20}></MaterialIcons>}
-                    {assisters.includes(player.player_id) &&   <FontAwesome name="magic" size={20} color="black" />}
-                    
-                  </View>
-                  
-                </View>
-                )
-              })}
-              </View>
-              <View className='flex flex-col  ' style={{flex: 1, alignItems: 'flex-end'}} >
-              {fixture.lineups[1].substitutes.map((player, index) => {
-                const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-                const photo = stats.player.photo
-                return(
-                
-                <View key={index} className='flex flex-row items-center gap-5 '>
-                  <View style={{width: 200 , alignItems: 'flex-center', flexDirection: 'row', gap:5}}>
-                    {subbedPlayersIn.includes(player.player_id) &&   <AntDesign name="arrowup" size={20} color="green"  />}
-                    {goalScorers.includes(player.player_id) &&   <MaterialIcons name='sports-soccer' size={20}></MaterialIcons>}
-                    {assisters.includes(player.player_id) &&   <FontAwesome name="magic" size={20} color="black" />}
-                    <PlayerText player={player} stats={stats} photo = {photo}>
-                        <Text className='text-lg font-supremeBold' > {player.player_name}</Text>
-                    </PlayerText>
-                  </View>
-                  <View style={{width: 30}}>
-                  <Text className='text-lg font-supremeBold '> {player.number}</Text>
-                  </View>
-                </View>
-                )
-              })}
-              </View>
-        </View>
-        </View>
+ {containerWidth > 500 ? (
+    // Wide layout: side by side
+    <View className='flex flex-row items-start w-full'>
+      <View className='flex flex-col' style={{flex: 1, alignItems: 'flex-start'}}>
+        {fixture.lineups[0].substitutes.map((player, index) => {
+          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+          const photo = stats.player.photo
+          return (
+            <View key={index} className='flex flex-row items-center gap-2 py-1'>
+              <Text className='text-lg font-supremeBold w-8'>{player.number}</Text>
+              <PlayerText player={player} stats={stats} photo={photo}>
+                <Text className='text-base font-supremeBold'>{player.player_name}</Text>
+              </PlayerText>
+              {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrowup" size={16} color="green" />}
+              {goalScorers.includes(player.player_id) && <MaterialIcons name='sports-soccer' size={16} />}
+              {assisters.includes(player.player_id) && <FontAwesome name="magic" size={16} color="black" />}
+            </View>
+          )
+        })}
+      </View>
+
+      <View className='flex flex-col' style={{flex: 1, alignItems: 'flex-end'}}>
+        {fixture.lineups[1].substitutes.map((player, index) => {
+          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+          const photo = stats.player.photo
+          return (
+            <View key={index} className='flex flex-row items-center gap-2 py-1'>
+              {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrowup" size={16} color="green" />}
+              {goalScorers.includes(player.player_id) && <MaterialIcons name='sports-soccer' size={16} />}
+              {assisters.includes(player.player_id) && <FontAwesome name="magic" size={16} color="black" />}
+              <PlayerText player={player} stats={stats} photo={photo}>
+                <Text className='text-base font-supremeBold'>{player.player_name}</Text>
+              </PlayerText>
+              <Text className='text-lg font-supremeBold w-8 text-right'>{player.number}</Text>
+            </View>
+          )
+        })}
       </View>
     </View>
-  )
+  ) : (
+    <View className='flex flex-row justify-between w-full'>
+    <View className='flex flex-col'>
+      {/* Home team */}
+      <View className='flex flex-row items-center gap-2 mt-3 mb-1'>
+        <Image source={{ uri: fixture.home_team.logo }} style={{width: 16, height: 16}} resizeMode='contain' />
+        <Text className='font-supremeBold'>{fixture.home_team.club_name}</Text>
+      </View>
+      <View className='flex flex-col gap-2' style={{height: '100%'}}>
+      {fixture.lineups[0].substitutes.map((player, index) => {
+        const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+        const photo = stats.player.photo
+        return (
+          <PlayerText player={player} stats={stats} photo={photo}>
+          <View key={index} className='flex flex-col items-center gap-2 py-1'>
+            <Image source={{uri: photo}} style={{width: 40, height: 40, borderRadius: 25}} />
+            
+            <Text className='text-xs font-supremeBold'>{`${player.number}. ${player.player_name}`}</Text>
+          </View>
+          </PlayerText>
+        )
+      })}
+      </View>
+    </View>
+    <View className='flex flex-col'>
+      {/* Away team */}
+      <View className='flex flex-row items-center gap-2 mt-3 mb-1'>
+        <Image source={{ uri: fixture.away_team.logo }} style={{width: 16, height: 16}} resizeMode='contain' />
+        <Text className='font-supremeBold'>{fixture.away_team.club_name}</Text>
+      </View>
+      <View className='flex flex-col gap-2' style={{height: '100%'}}>
+      {fixture.lineups[1].substitutes.map((player, index) => {
+        const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+        const photo = stats.player.photo
+        return (
+          <View key={index} className='flex flex-col items-center gap-2 py-1'>
+            <Image source={{uri: photo}} style={{width: 40, height: 40, borderRadius: 25}} />
+            <Text className='text-xs font-supremeBold'>{`${player.number}. ${player.player_name}`}</Text>
+          </View>
+        )
+      })}
+      </View>
+    </View>  
+    </View>
+
+  )}
+  
+      </View>
+
+      </View>
+    </View>
+    )
 }
 
 export default FixtureLineups

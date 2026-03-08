@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, Platform } from 'react-native'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import React, { useEffect, useState } from 'react'
 import { Link } from 'expo-router';
@@ -76,9 +76,9 @@ export const PlayerLastGame = ({player}) => {
         }
     }
   return (
-    <View className='rounded-xl flex flex-col bg-white' style={{flex:1}}>
+    <View className='rounded-xl flex flex-col bg-white p-3' style={{flex: Platform.OS === 'web' &&  1}}>
         <Link href={{pathname: '/fixture/[id]', params: {id: lastGame?.fixture.fixture_id}}}>
-        <Text>Lastest Performance</Text>
+        <Text className='text-2xl font-supremeBold p-2'>Lastest Performance</Text>
         </Link>
         <View className='flex flex-row gap-3 p-2'>
             <Image source={{uri: player?.photo}} style={{width:50, height:50}}/>
@@ -99,17 +99,17 @@ export const PlayerLastGame = ({player}) => {
         </View>
 
         <View>
-            <TouchableOpacity className="flex flex-row lastGame?s-center gap-1 " 
+            <TouchableOpacity className="flex flex-row items-center justify-center gap-10 " 
                     >
                       
-                <View className='flex flex-row gap-2' style={{flex:1}}>
+                <View className='flex flex-row gap-2' >
                     {topReactions.map(reaction =>(
                         <Image source={{ uri: `${TWITTER_EMOJI_BASE}${reaction.count.emoji.image}`}} style={{width:20, height:20}}/>
                     ))}
                      <Text className='text-lg font-supremeBold ml-3'>{reactionCount}</Text>
                 </View>                        
                    
-                <View className='flex flex-row lastGame?s-center gap-2' style={{flex:1, alignSelf: 'flex-end'}}>
+                <View className='flex flex-row items-center gap-2' >
                     <FontAwesome name="comment" size={20} color="#A477C7" /><Text className='font-supreme'>{lastGame?.comment_count}</Text>
                 </View>
 
@@ -118,7 +118,7 @@ export const PlayerLastGame = ({player}) => {
         </View>
         <View className='border-b border-gray-300 p-2 w-full' />
         <View className='mt-5 flex gap-3'>
-            <View className='flex flex-row items-center px-10'>
+            <View className='flex flex-row items-center px-5'>
                 <View style={{flex:1}} className='items-center'>
                  <View className=' rounded-full items-center justify-center w-full 'style={{paddingHorizontal: 2,
                     backgroundColor: lastGame?.rating > 8.9 ? '#12CCFF' : lastGame?.rating > 6.9 ? '#00F70C' : lastGame?.rating > 5.9 ? '#FF9C00' : 'red',
@@ -146,7 +146,7 @@ export const PlayerLastGame = ({player}) => {
                     <Text>Shots</Text>
                 </View>
             </View>
-            <View className='flex flex-row items-center px-10'>
+            <View className='flex flex-row items-center px-5'>
                 <View className='items-center' style={{flex:1}}>
                     <Text>{`${lastGame?.pass_accuracy || 0}/${lastGame?.passes || 0} (${parseFloat (((lastGame?.pass_accuracy || 0)/(lastGame?.passes || 0))*100)}%)`} </Text>
                     <Text>Pass %</Text>
