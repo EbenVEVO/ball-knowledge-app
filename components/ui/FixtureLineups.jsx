@@ -119,7 +119,7 @@ const handleLayout = (event) => {
         players_by_row[row].push(player)
       })
 
-
+      console.log('players_by_row', players_by_row)
       const posMap = Object.keys(players_by_row).length < 5 ?
       {
         1:["GK"],
