@@ -16,7 +16,7 @@ export const TeamProfile = ({club}) => {
 
   useEffect(() => {
     const checkFollow = async () => {
-      const {data, error} = await supabase.from('users_followed_teams').select('*').eq('user_id', session.user.id).eq('team_id', club.id).single()
+      const {data, error} = await supabase.from('users_followed_teams').select('*').eq('user_id', session?.user.id).eq('team_id', club.id).single()
       if (data) {
         console.log('true')
         setFollowing(true)
@@ -37,12 +37,12 @@ export const TeamProfile = ({club}) => {
 
   const handleFollow = async ()=>{
     if (following){
-     const {error} = await supabase.from('users_followed_teams').delete().eq('user_id', session.user.id).eq('team_id', club.id)
+     const {error} = await supabase.from('users_followed_teams').delete().eq('user_id', session?.user.id).eq('team_id', club.id)
      if (error) console.log(error)
       setFollowing(false)
     }
     else {
-      const {data, error} = await supabase.from('users_followed_teams').insert({user_id: session.user.id, team_id: club.id})
+      const {data, error} = await supabase.from('users_followed_teams').insert({user_id: session?.user.id, team_id: club.id})
       if (error) console.log(error)
       else{
         console.log(data)

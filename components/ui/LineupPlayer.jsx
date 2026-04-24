@@ -156,7 +156,7 @@ export const LineupPlayer = ({
           style={{ width: 140, textShadowColor: 'rgba(255, 255, 255, 0.75)', textShadowOffset: {width: -1, height: 1}, textShadowRadius: 10 }}
           numberOfLines={1}
         >
-          {player.number}. {player.player_name}
+          {player.number}. {player.player_name ? player.player_name : player.name}
         </Text>
       </TouchableOpacity>
 

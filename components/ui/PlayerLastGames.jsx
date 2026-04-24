@@ -72,7 +72,7 @@ const formatDate = (date) => {
                         </View>
                         <Text style={{ flex: 1}} className='font-supreme text-center'>{game.minutes === null ? 0 : game.minutes}</Text>
                         <Text style={{ flex: 1 }} className='font-supreme text-center'>{game.goals === null ? 0 : game.goals}</Text>
-                        <Text style={{ flex: 1 }} className='font-supreme text-center'>0{game.assists === null ? 0 : game.assists}</Text>
+                        <Text style={{ flex: 1 }} className='font-supreme text-center'>{game.assists === null ? 0 : game.assists}</Text>
                     </View>
                 </View>{index !== lastGames.length - 1 && <View className='border-b border-gray-300  w-full' />}</>
             )})}

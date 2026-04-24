@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import {PlayerGames} from '../ui/PlayerGames'
 import React, { useState } from 'react'
-import PlayerModal from '../ui/PlayerModal'
+import { PlayerModal } from '../ui/PlayerModal'
 
 export const PlayerMatches = ({player}) => {
   const [isVisible, setIsVisible] = useState(false)

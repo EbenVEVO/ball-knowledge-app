@@ -148,7 +148,7 @@ export const PlayerLastGame = ({player}) => {
             </View>
             <View className='flex flex-row items-center px-5'>
                 <View className='items-center' style={{flex:1}}>
-                    <Text>{`${lastGame?.pass_accuracy || 0}/${lastGame?.passes || 0} (${parseFloat (((lastGame?.pass_accuracy || 0)/(lastGame?.passes || 0))*100)}%)`} </Text>
+                    <Text>{`${lastGame?.pass_accuracy || 0}/${lastGame?.passes || 0} (${parseFloat (((lastGame?.pass_accuracy || 0)/(lastGame?.passes || 0))*100).toFixed(2)}%)`} </Text>
                     <Text>Pass %</Text>
                 </View>
                 <View className='items-center' style={{flex:1}}>

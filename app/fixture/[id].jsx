@@ -50,7 +50,7 @@ export default function FixturePage(){
 
       const { data: playerStats, error: playerStatsError } = await supabase
         .from('player_stats')
-        .select(`*, team:team_id(club_name, logo), player:player_id (photo, nationality, DOB, country_code, flag: country_code(flag_url))`)
+        .select(`*, team:team_id(club_name, logo),fixture: fixture_id (date_time_utc, home_team : home_team_id (club_name, logo, id), away_team: away_team_id (club_name, logo, id), league: league_id (name, logo), home_score, away_score), player:player_id (photo, nationality, DOB, country_code, flag: country_code(flag_url))`)
         .eq('fixture_id', id)
 
       if (playerStatsError) {
@@ -68,6 +68,7 @@ export default function FixturePage(){
         return
       }
 
+      console.log({ ...data, events, lineups, playerStats, teamStats }, 'fixture')
       setFixture({ ...data, events, lineups, playerStats, teamStats })
     }
 

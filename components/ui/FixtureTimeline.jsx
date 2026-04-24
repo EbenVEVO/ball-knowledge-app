@@ -96,36 +96,36 @@ export const FixtureTimeline = ({fixture}) => {
                                 <View className='flex flex-col  gap-2' style={{ alignItems:'flex-start' }}>
                                      {event.event_type === 'Goal'&&
                                     <>
-                                    <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                    <PlayerText player={playerOne} stats={playerOneStats} >
                                     <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                     </PlayerText>
 
                                     {event.player2_name &&
-                                    <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                    <PlayerText player={playerTwo} stats={playerTwoStats} >
                                     <Text className=' text-black font-supreme'>{ 'Assist: '}{event.player2_name}</Text>
                                     </PlayerText>}
                                     </>
                                 }
                                 {event.event_type === 'subst' &&
                                 <>
-                                <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                <PlayerText player={playerTwo} stats={playerTwoStats}>
                                 <Text style={{color: 'green'}} className='text-lg text-black font-supreme'>{event.player2_name}</Text>
                                 </PlayerText>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text style={{color: 'red'}} className=' text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 </>
                                 }
                                 {event.event_type === 'Card' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'>{event.event_details}</Text></>}
 
                                 {event.event_type === 'Var' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme ' style={{textTransform: 'capitalize'}}>{event.event_details}</Text></>}
@@ -134,36 +134,36 @@ export const FixtureTimeline = ({fixture}) => {
                         <><View className='flex flex-col  ' style={{ alignItems: 'flex-end' }}>
                                 {event.event_type === 'Goal'&&
                                     <>
-                                    <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                    <PlayerText player={playerOne} stats={playerOneStats}>
                                     <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                     </PlayerText>
 
                                     {event.player2_name &&
-                                    <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                    <PlayerText player={playerTwo} stats={playerTwoStats}>
                                     <Text className=' text-black font-supreme'>{ 'Assist: '}{event.player2_name}</Text>
                                     </PlayerText>}
                                     </>
                                 }
                                 {event.event_type === 'subst' &&
                                 <>
-                                <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                <PlayerText player={playerTwo} stats={playerTwoStats}>
                                 <Text style={{color: 'green'}} className='text-lg text-black font-supreme'>{event.player2_name}</Text>
                                 </PlayerText>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats}>
                                 <Text style={{color: 'red'}} className=' text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 </>
                                 }
                                  {event.event_type === 'Card' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'>{event.event_details}</Text></>}
 
                                 {event.event_type === 'Var' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'>{event.event_details}</Text></>}
@@ -228,36 +228,36 @@ export const FixtureTimeline = ({fixture}) => {
                                 <View className='flex flex-col  gap-2' style={{ alignItems:'flex-start' }}>
                                      {event.event_type === 'Goal'&&
                                     <>
-                                    <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                    <PlayerText player={playerOne} stats={playerOneStats} >
                                     <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                     </PlayerText>
 
                                     {event.player2_name &&
-                                    <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                    <PlayerText player={playerTwo} stats={playerTwoStats} >
                                     <Text className=' text-black font-supreme'>{ 'Assist: '}{event.player2_name}</Text>
                                     </PlayerText>}
                                     </>
                                 }
                                 {event.event_type === 'subst' &&
                                 <>
-                                <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                <PlayerText player={playerTwo} stats={playerTwoStats} >
                                 <Text style={{color: 'green'}} className='text-lg text-black font-supreme'>{event.player2_name}</Text>
                                 </PlayerText>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text style={{color: 'red'}} className=' text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 </>
                                 }
                                 {event.event_type === 'Card' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'>{event.event_details}</Text></>}
 
                                 {event.event_type === 'Var' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats}>
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'  style={{textTransform: 'capitalize'}}>{event.event_details}</Text></>}
@@ -266,36 +266,36 @@ export const FixtureTimeline = ({fixture}) => {
                         <><View className='flex flex-col  ' style={{ alignItems: 'flex-end' }}>
                                 {event.event_type === 'Goal'&&
                                     <>
-                                    <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                    <PlayerText player={playerOne} stats={playerOneStats} >
                                     <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                     </PlayerText>
 
                                     {event.player2_name &&
-                                    <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                    <PlayerText player={playerTwo} stats={playerTwoStats} >
                                     <Text className=' text-black font-supreme'>{ 'Assist: '}{event.player2_name}</Text>
                                     </PlayerText>}
                                     </>
                                 }
                                 {event.event_type === 'subst' &&
                                 <>
-                                <PlayerText player={playerTwo} stats={playerTwoStats} photo={playerTwoStats.player.photo}>
+                                <PlayerText player={playerTwo} stats={playerTwoStats}>
                                 <Text style={{color: 'green'}} className='text-lg text-black font-supreme'>{event.player2_name}</Text>
                                 </PlayerText>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats}>
                                 <Text style={{color: 'red'}} className=' text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 </>
                                 }
                                  {event.event_type === 'Card' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats}>
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'>{event.event_details}</Text></>}
 
                                 {event.event_type === 'Var' &&
                                 <>
-                                <PlayerText player={playerOne} stats={playerOneStats} photo={playerOneStats.player.photo}>
+                                <PlayerText player={playerOne} stats={playerOneStats} >
                                 <Text className='text-lg text-black font-supreme'>{event.player_name}</Text>
                                 </PlayerText>
                                 <Text className=' text-black font-supreme'>{event.event_details}</Text></>}

@@ -84,23 +84,41 @@ const handleLayout = (event) => {
     })    
     setYellowCards(temp)
 
+    console.log(fixture.lineups, 'lineups')
     setAwayLineup(lineupFormation(fixture.lineups[1].starting_lineup))
     setHomeLineup(lineupFormation(fixture.lineups[0].starting_lineup))
     
     
   }, [fixture])
 
-  const lineupFormation = (lineup) =>{
-    console.log('substitues ',fixture.lineups[0].substitutes)
-
-    const players_by_row = {}
-      lineup.forEach((player) => {
-       const [row, column] = player.grid.split(':').map(Number)
-        if (!players_by_row[row]) {
-          players_by_row[row] = []
+  const lineupFormation = (lineup) => {
+    
+    console.log('linueup', lineup)
+    const normalized = lineup.map(player => {
+      if (player?.player) {
+        // Format: { player: { id, grid, name, number, pos } }
+        return {
+          player_id: player.player.id ? player.player.id : player.player.player_id,
+          player_name: player.player.name ? player.player.name : player.player.player_name,
+          number: player.player.number,
+          grid: player.player.grid,
+          position: player.player.pos,
         }
+      }
+      // Format: { grid, number, position, player_id, player_name }
+      return player
+    })
+    
+    console.log('normalized', normalized)
+    const players_by_row = {}
+    normalized
+      .filter(player => player?.grid)
+      .forEach((player) => {
+        const [row] = player.grid.split(':').map(Number)
+        if (!players_by_row[row]) players_by_row[row] = []
         players_by_row[row].push(player)
       })
+
 
       const posMap = Object.keys(players_by_row).length < 5 ?
       {
@@ -201,6 +219,18 @@ const handleLayout = (event) => {
         return posMap
 
   }
+  const normalizePlayers = (lineup) => {
+    if (!lineup || !Array.isArray(lineup)) return []
+    return lineup.map(player =>
+      player?.player ? {
+        player_id: player.player.id,
+        player_name: player.player.name,
+        number: player.player.number,
+        grid: player.player.grid,
+        position: player.player.pos,
+      } : player
+    )
+  }
   return (
     <View 
       className='flex flex-col rounded-2xl '  
@@ -214,23 +244,21 @@ const handleLayout = (event) => {
       <Field width={containerWidth}>
           {
           !homeLineup ? null : 
-          fixture.lineups[0].starting_lineup.map((player, index) => {
-          const position = homeLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-          const goalScorer = goalScorers.includes(player.player_id)
-          const assist = assisters.includes(player.player_id)
-          const redCard = redCards.includes(player.player_id)
-          const yellowCard = yellowCards.includes(player.player_id)
-          const subbed = subbedOutPlayers.includes(player.player_id)
-          const og = ownGoals.includes(player.player_id)
-          const photo = stats.player.photo
+          normalizePlayers(fixture.lineups[0].starting_lineup).map((player, index) => {
+            const position = homeLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
+            const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+            const goalScorer = goalScorers.includes(player.id)   // was player.player_id
+            const assist = assisters.includes(player.id)
+            const redCard = redCards.includes(player.id)
+            const yellowCard = yellowCards.includes(player.id)
+            const subbed = subbedOutPlayers.includes(player.id)
+            const og = ownGoals.includes(player.id)
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
               player={player}
-              photo={photo}
               stats={stats}
               position={position}
               goalScorer={goalScorer}
@@ -246,15 +274,15 @@ const handleLayout = (event) => {
         }
         {
           !awayLineup ? null : 
-          fixture.lineups[1].starting_lineup.map((player, index) => {
+          normalizePlayers(fixture.lineups[1].starting_lineup).map((player, index) => {
           const position = awayLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-          const goalScorer = goalScorers.includes(player.player_id)
-          const assist = assisters.includes(player.player_id)
-          const redCard = redCards.includes(player.player_id)
-          const yellowCard = yellowCards.includes(player.player_id)
-          const subbed = subbedOutPlayers.includes(player.player_id)
-          const og = ownGoals.includes(player.player_id)
+          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+          const goalScorer = goalScorers.includes(player.id)   // was player.player_id
+          const assist = assisters.includes(player.id)
+          const redCard = redCards.includes(player.id)
+          const yellowCard = yellowCards.includes(player.id)
+          const subbed = subbedOutPlayers.includes(player.id)
+          const og = ownGoals.includes(player.id)
           if (!position) {
             return null;
           }
@@ -279,23 +307,21 @@ const handleLayout = (event) => {
       <VerticalField width={containerWidth}>
         {
           !homeLineup ? null : 
-          fixture.lineups[0].starting_lineup.map((player, index) => {
+          normalizePlayers(fixture.lineups[0].starting_lineup).map((player, index) => {
           const position = homeLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-          const goalScorer = goalScorers.includes(player.player_id)
-          const assist = assisters.includes(player.player_id)
-          const redCard = redCards.includes(player.player_id)
-          const yellowCard = yellowCards.includes(player.player_id)
-          const subbed = subbedOutPlayers.includes(player.player_id)
-          const og = ownGoals.includes(player.player_id)
-          const photo = stats.player.photo
+          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+          const goalScorer = goalScorers.includes(player.id)   // was player.player_id
+          const assist = assisters.includes(player.id)
+          const redCard = redCards.includes(player.id)
+          const yellowCard = yellowCards.includes(player.id)
+          const subbed = subbedOutPlayers.includes(player.id)
+          const og = ownGoals.includes(player.id)
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
               player={player}
-              photo={photo}
               stats={stats}
               position={position}
               goalScorer={goalScorer}
@@ -312,15 +338,15 @@ const handleLayout = (event) => {
         }
         {
           !awayLineup ? null : 
-          fixture.lineups[1].starting_lineup.map((player, index) => {
+          normalizePlayers(fixture.lineups[1].starting_lineup).map((player, index) => {
           const position = awayLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-          const goalScorer = goalScorers.includes(player.player_id)
-          const assist = assisters.includes(player.player_id)
-          const redCard = redCards.includes(player.player_id)
-          const yellowCard = yellowCards.includes(player.player_id)
-          const subbed = subbedOutPlayers.includes(player.player_id)
-          const og = ownGoals.includes(player.player_id)
+          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+          const goalScorer = goalScorers.includes(player.id)   // was player.player_id
+          const assist = assisters.includes(player.id)
+          const redCard = redCards.includes(player.id)
+          const yellowCard = yellowCards.includes(player.id)
+          const subbed = subbedOutPlayers.includes(player.id)
+          const og = ownGoals.includes(player.id)
           if (!position) {
             return null;
           }
@@ -362,14 +388,13 @@ const handleLayout = (event) => {
     // Wide layout: side by side
     <View className='flex flex-row items-start w-full'>
       <View className='flex flex-col' style={{flex: 1, alignItems: 'flex-start'}}>
-        {fixture.lineups[0].substitutes.map((player, index) => {
-          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-          const photo = stats.player.photo
-          return (
+        {normalizePlayers(fixture.lineups[0].substitutes).map((player, index) => {
+              const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+              return (
             <View key={index} className='flex flex-row items-center gap-2 py-1'>
               <Text className='text-lg font-supremeBold w-8'>{player.number}</Text>
-              <PlayerText player={player} stats={stats} photo={photo}>
-                <Text className='text-base font-supremeBold'>{player.player_name}</Text>
+              <PlayerText player={player} stats={stats} >
+                <Text className='text-base font-supremeBold'>{player.player_name ? player.player_name : player.name}</Text>
               </PlayerText>
               {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrowup" size={16} color="green" />}
               {goalScorers.includes(player.player_id) && <MaterialIcons name='sports-soccer' size={16} />}
@@ -380,18 +405,17 @@ const handleLayout = (event) => {
       </View>
 
       <View className='flex flex-col' style={{flex: 1, alignItems: 'flex-end'}}>
-        {fixture.lineups[1].substitutes.map((player, index) => {
-          const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-          const photo = stats.player.photo
+        {normalizePlayers(fixture.lineups[1].substitutes).map((player, index) => {
+          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
           return (
             <View key={index} className='flex flex-row items-center gap-2 py-1'>
               {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrowup" size={16} color="green" />}
               {goalScorers.includes(player.player_id) && <MaterialIcons name='sports-soccer' size={16} />}
               {assisters.includes(player.player_id) && <FontAwesome name="magic" size={16} color="black" />}
-              <PlayerText player={player} stats={stats} photo={photo}>
-                <Text className='text-base font-supremeBold'>{player.player_name}</Text>
+              <PlayerText player={player} stats={stats} >
+                <Text className='text-base font-supremeBold'>{player.player_name ? player.player_name : player.name}</Text>
               </PlayerText>
-              <Text className='text-lg font-supremeBold w-8 text-right'>{player.number}</Text>
+              <Text className='text-lg font-supremeBold w-8'>{player.number}</Text>
             </View>
           )
         })}
@@ -406,13 +430,12 @@ const handleLayout = (event) => {
         <Text className='font-supremeBold'>{fixture.home_team.club_name}</Text>
       </View>
       <View className='flex flex-col gap-2' style={{height: '100%'}}>
-      {fixture.lineups[0].substitutes.map((player, index) => {
+      {normalizePlayers(fixture.lineups[0].substitutes).map((player, index) => {
         const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-        const photo = stats.player.photo
         return (
-          <PlayerText player={player} stats={stats} photo={photo}>
+          <PlayerText player={player} stats={stats}>
           <View key={index} className='flex flex-col items-center gap-2 py-1'>
-            <Image source={{uri: photo}} style={{width: 40, height: 40, borderRadius: 25}} />
+            <Image source={{uri: stats?.player.photo}} style={{width: 40, height: 40, borderRadius: 25}} />
             
             <Text className='text-xs font-supremeBold'>{`${player.number}. ${player.player_name}`}</Text>
           </View>
@@ -428,12 +451,11 @@ const handleLayout = (event) => {
         <Text className='font-supremeBold'>{fixture.away_team.club_name}</Text>
       </View>
       <View className='flex flex-col gap-2' style={{height: '100%'}}>
-      {fixture.lineups[1].substitutes.map((player, index) => {
+      {normalizePlayers(fixture.lineups[1].substitutes).map((player, index) => {
         const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
-        const photo = stats.player.photo
         return (
           <View key={index} className='flex flex-col items-center gap-2 py-1'>
-            <Image source={{uri: photo}} style={{width: 40, height: 40, borderRadius: 25}} />
+            <Image source={{uri: stats?.player.photo}} style={{width: 40, height: 40, borderRadius: 25}} />
             <Text className='text-xs font-supremeBold'>{`${player.number}. ${player.player_name}`}</Text>
           </View>
         )

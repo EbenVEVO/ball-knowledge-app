@@ -4,11 +4,13 @@ import { useAuth } from '../../contexts/AuthContext'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase } from '../../lib/supabase';
 import UserCommentInput from '../ui/UserCommentInput';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { comment } from 'postcss';
 import Comment from '../ui/Comment';
 
-export default function Comments({post_id, type}) {
+export default function Comments({post_id, type, ListHeaderComponent}) {
     const {session, profile} = useAuth()
     const [userComment, setUserComment]= useState('')
     const [comments, setComments] = useState([])
@@ -195,8 +197,7 @@ export default function Comments({post_id, type}) {
   if (loading)return <Text>Loading...</Text>
   return (
     <>
-    <View className='flex-1 px-5 mb-5 relative'>
-      <Text>Comments</Text>
+    <View className='flex-1 mb-5 relative'>
       {newCommentsCount > 0 && <View className='absolute z-10 top-5 left-1/2 -translate-x-1/2'>
           <TouchableOpacity className='p-4  rounded-full'style={{backgroundColor: '#A477C7'}}
           onPress={scrollToNewComments}
@@ -206,9 +207,28 @@ export default function Comments({post_id, type}) {
         </View>}
      
        <FlatList
-       ref={flatListRef}
-       data={comments}
+        ref={flatListRef}
+        data={comments} 
+        ListHeaderComponent={() => (
+          <>
+            {ListHeaderComponent}
+            <View className='flex flex-row gap-5 p-5'>
+              <Text>Comments</Text>
+              <FontAwesome name="comment" size={20} color="#A477C7" />
+              <Text>{comments.length}</Text>
+            </View>
+          </>
+        )} 
        renderItem={renderComments}
+       ListEmptyComponent={()=>(
+          <View>
+          
+            <View className='gap-5 flex justify-center'>
+              <Text className = 'text-center'> No Comments Yet</Text>
+              <Text className = 'text-center'>Be the first to share your thoughts</Text>
+            </View>
+          </View>
+       )} 
        keyExtractor={(item) => item.id}
        onViewableItemsChanged={onViewableItemsChanged}
        viewabilityConfig={visibilityConfig}

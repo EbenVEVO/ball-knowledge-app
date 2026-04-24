@@ -47,21 +47,31 @@ export const PlayerGames = ({player, setIsVisible, setPlayerStats, setPlayerInfo
 
             const {data: lineupPlayers, error: lineupPlayersError} = await supabase.from('fixture_lineups').select(`*`).in('fixture_id', fixture_ids)
             
-            console.log(lineupPlayers)
+            console.log(lineupPlayers, 'from supabase')
             
-            const mergedData = data.map(match=>{
+            const mergedData = data.map(match => {
                 const lineup = lineupPlayers.filter(l => l.fixture_id === match.fixture_id)
-                console.log(lineup)
-                const playerInLineup = lineup.find(l =>
-                    {
-                    const inStarting = l.starting_lineup?.find(p => p.player_id === player.id);
-                     const inSubs     = l.substitutes?.find(p => p.player_id === player.id);
-
-                    return inStarting || inSubs}
-                )
-                const combinedLineups = [...playerInLineup.substitutes, ...playerInLineup.starting_lineup]
-                const playerObject = combinedLineups.find(p => p.player_id === player.id)
-                match.playerInfo = playerObject           
+            
+                const playerInLineup = lineup.find(l => {
+                    const inStarting = l.starting_lineup?.find(p => p.player?.id === player.id)
+                    const inSubs = l.substitutes?.find(p => p.player?.id === player.id)
+                    return inStarting || inSubs
+                })
+            
+                if (!playerInLineup) {
+                    match.playerInfo = null
+                    return match
+                }
+            
+                const combinedLineups = [
+                    ...(playerInLineup.substitutes ?? []),
+                    ...(playerInLineup.starting_lineup ?? [])
+                ]
+            
+                const playerObject = combinedLineups.find(p => p.player?.id === player.id)
+                match.playerInfo = playerObject?.player ?? null
+            
+                return match
             })
             console.log(data)
             setMatches(data)
@@ -137,7 +147,7 @@ export const PlayerGames = ({player, setIsVisible, setPlayerStats, setPlayerInfo
                 <View className='flex flex-row items-center gap-2' style={{flex: 1}}>
                     <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>{item.minutes === null ? '0' : item.minutes}</Text>
                     <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>{item.goals === null ? '0' : item.goals}</Text>
-                    <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>0{item.assists === null ? '0' : item.assists}</Text>
+                    <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>{item.assists === null ? '0' : item.assists}</Text>
                     <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>{item.yellow_cards === null ? '0' : item.yellow_cards}</Text>
                     <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>{item.red_cards === null ? '0' : item.red_cards}</Text>
                     <Text style={{flex: 1, textAlign: 'center'}} className='font-supreme'>{item.rating === null ? '-' : item.rating}</Text>
