@@ -31,8 +31,8 @@ export const Search = () => {
          results[0].type == 'club' ? router.push(`/club/${results[0].id}`) : router.push(`/player/${results[0].id}`)
        }
        else {
-         router.push(`/query/${input}`)
-       }
+        router.push(`/query/${encodeURIComponent(input)}`)
+      }
   }
   return (
     <View className='relative z-10 flex-1' style={{zIndex:999}}>
