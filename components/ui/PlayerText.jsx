@@ -1,11 +1,13 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native'
 import { PlayerModal } from '../ui/PlayerModal'
+import PlayerBottomSheet from './PlayerBottomSheet'
 import { Link } from 'expo-router'
 import React, { useState, useEffect } from 'react'
 
-export const PlayerText = ({ children, player, stats }) => {
+export const PlayerText = ({ children, player, stats, fixture }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [playerStats, setPlayerStats] = useState(null);
+  const PlayerSheet = Platform.OS === 'web' ? PlayerModal : PlayerBottomSheet
 
   useEffect(() => {
     if (!stats) return
@@ -17,7 +19,7 @@ export const PlayerText = ({ children, player, stats }) => {
 
   if (!stats) {
     return (
-      <Link href={{ pathname: '/player/[id]', params: { id: player.player_id } }} asChild>
+      <Link href={{ pathname: '/player/[id]', params: { id: stats?.player_id } }} asChild>
         <TouchableOpacity>{children}</TouchableOpacity>
       </Link>
     )
@@ -28,7 +30,7 @@ export const PlayerText = ({ children, player, stats }) => {
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         {children}
       </TouchableOpacity>
-      <PlayerModal isVisible={modalVisible} onClose={() => setModalVisible(false)} stats={stats} player={player} />
+      <PlayerSheet  fixture = {fixture} isVisible={modalVisible} onClose={() => setModalVisible(false)} stats={stats} player={player} />
     </View>
   )
 }

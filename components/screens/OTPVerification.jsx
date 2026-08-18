@@ -28,7 +28,7 @@ export default function OTPVerification ({signUp, data}) {
                  setErrorMessage('')
             }
             else{
-             if(req.message === 'Signups not allowed for otp'){
+             if(req.message === 'Signups n  ot allowed for otp'){
                  setPhoneNumber('')
                  setErrorMessage('This number is not registered with Welth')
         

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import {FlashList} from '@shopify/flash-list'
 import { Link } from 'expo-router'
+import { isFixtureLive, isFixtureFinished, formatScore, formatPenaltyScore } from '../../lib/matchStatus'
 
 
 const LeagueUpcomingFixtures = ({season}) => {
@@ -12,10 +13,10 @@ const LeagueUpcomingFixtures = ({season}) => {
         const fetchUpcomingFixtures = async ()=>{
             const {data: nextMatch} = await supabase.from('fixtures').select(`round`)
             .eq('season_id', season.id)
-            .neq('match_status', 'Match Finished')
+            .not('match_status', 'ilike', 'Match Finished%')
             .order('date_time_utc', {ascending: true})
             .limit(1)
-            .single()
+            .maybeSingle()
 
             if(nextMatch){
                 setGameweek(nextMatch.round)
@@ -66,14 +67,27 @@ const LeagueUpcomingFixtures = ({season}) => {
                     <Text className=' font-supreme text-right '>{item.home_team.club_name}</Text>
                     <Image source={{ uri: item.home_team.logo }} style={styles.clublogo} resizeMode='contain' />
                 </View>
-                {item.match_status == 'Match Finished' ?
-                <View className='p-2 px-5 rounded-full  justify-center' style={{ flex:1}}>
-                    <Text className='text-sm text-white font-supremeBold'>{item.score}</Text>
+                {isFixtureFinished(item.match_status) ?
+                <View className='p-2 px-5 rounded-full justify-center items-center bg-gray-100' style={{ flex:1}}>
+                    <Text className='text-sm text-black font-supremeBold'>{formatScore(item)}</Text>
+                    {formatPenaltyScore(item) &&
+                    <Text className='text-xs text-black font-supremeBold'>{formatPenaltyScore(item)}</Text>
+                    }
+                </View>
+                : isFixtureLive(item.match_status) ?
+                <View className='items-center' style={{flex:1, gap:4}}>
+                    <View className='flex flex-row items-center gap-1'>
+                        <View style={{width:8, height:8, borderRadius:4, backgroundColor:'#ef4444'}} />
+                        <Text className='text-xs font-supremeBold' style={{color:'#ef4444'}}>
+                            {item.match_status === 'Halftime' ? 'HT' : `${item.minute ?? ''}'`}
+                        </Text>
+                    </View>
+                    <Text className='text-sm text-black font-supremeBold'>{formatScore(item)}</Text>
                 </View>
                 :
                 <View className='items-center'style={{flex:0.5}} >
                     <Text className='text-sm text-center text-black font-supremeBold'>{formatTime(item.date_time_utc)}</Text>
-                </View>  
+                </View>
               }
                 <View className='flex flex-row items-center gap-2  p-2' style={{flex:2, justifyContent: 'flex-start' }}>
                     <Image source={{ uri: item.away_team.logo }} style={styles.clublogo} resizeMode='contain' />

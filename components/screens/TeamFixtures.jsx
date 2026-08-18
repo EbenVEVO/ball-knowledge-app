@@ -3,7 +3,7 @@ import {ClubFixtures} from '../ui/ClubFixtures'
 import React from 'react'
 
 export const TeamFixtures = ({club}) => {
-  
+
   return (
     <View>
         <ClubFixtures club={club}/>

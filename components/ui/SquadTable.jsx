@@ -1,16 +1,33 @@
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView, FlatList,Image } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, FlatList,Image, useWindowDimensions } from 'react-native'
 import React, { use } from 'react'
 import _, { get } from 'lodash'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {Ionicons} from '@expo/vector-icons'
 import { supabase } from '../../lib/supabase';
 import { Link } from 'expo-router'
 
+// Proportional share of the table each column gets, and the minimum pixel
+// width it can shrink to before the table starts scrolling horizontally.
+const COLUMN_WEIGHTS = { name: 0.26, position: 0.12, nationality: 0.15, age: 0.08, number: 0.09, height: 0.09, marketValue: 0.21 }
+const COLUMN_MIN_WIDTHS = { name: 160, position: 80, nationality: 100, age: 50, number: 55, height: 55, marketValue: 90 }
+const MIN_TABLE_CONTENT_WIDTH = Object.values(COLUMN_MIN_WIDTHS).reduce((a, b) => a + b, 0)
+
 export const SquadTable = ({club}) => {
     const [players, setPlayers] = useState();
+    const { width: windowWidth } = useWindowDimensions();
 
     const [direction , setDirection] = useState(null);
   const [selectedColumn, setSelectedColumn] = useState(null);
+
+  const columnWidths = useMemo(() => {
+    const contentWidth = Math.max(windowWidth - 40, MIN_TABLE_CONTENT_WIDTH);
+    return Object.fromEntries(
+      Object.keys(COLUMN_WEIGHTS).map((key) => [
+        key,
+        Math.max(Math.round(COLUMN_WEIGHTS[key] * contentWidth), COLUMN_MIN_WIDTHS[key]),
+      ])
+    );
+  }, [windowWidth]);
    const normalizePlayerData = (player) => {
   const keyMapping = {
     'value': 'market_value_in_eur',
@@ -71,45 +88,45 @@ export const SquadTable = ({club}) => {
   const renderHeader = () =>{
         return(
             <><View className='flex flex-row   items-center  p-5 px-10 gap-5'>
-                <View style={{ width: 180 }}>
+                <View style={{ width: columnWidths.name }}>
                     <TouchableOpacity onPress={() => handleSort("name")}>
                         <Text className=' font-supremeBold'> Name </Text>
                     </TouchableOpacity>
                     {selectedColumn === "name" ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
                 </View>
-                <View className='flex flex-row items-center align-center justify-center' style={{ width: 100 }}>
+                <View className='flex flex-row items-center align-center justify-center' style={{ width: columnWidths.position }}>
                     <TouchableOpacity onPress={() => handleSort("position")}>
                         <Text className='text-center font-supremeBold'> Position </Text>
                     </TouchableOpacity>
                     {selectedColumn === "position" ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
                 </View>
-                <View className='flex flex-row items-center align-center justify-center' style={{ width: 110 }}>
+                <View className='flex flex-row items-center align-center justify-center' style={{ width: columnWidths.nationality }}>
                     <TouchableOpacity onPress={() => handleSort("nationality")}>
                         <Text className='text-center font-supremeBold'>Nationality</Text>
                     </TouchableOpacity>
                     {selectedColumn === "nationality" ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
                 </View>
-                <View className='flex flex-row items-center align-center justify-center' style={{ width: 60 }}>
+                <View className='flex flex-row items-center align-center justify-center' style={{ width: columnWidths.age }}>
                     <TouchableOpacity onPress={() => handleSort("DOB")}>
                         <Text className='text-center font-supremeBold'>Age</Text>
                     </TouchableOpacity>
                     {selectedColumn === "DOB" ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
                 </View>
-                <View className='flex flex-row items-center align-center justify-center' style={{ width: 60 }}>
+                <View className='flex flex-row items-center align-center justify-center' style={{ width: columnWidths.number }}>
                     <TouchableOpacity onPress={() => handleSort("number")}>
                         <Text className='text-center font-supremeBold'>Shirt #</Text>
                     </TouchableOpacity>
                     {selectedColumn === "number" ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
                 </View>
 
-                <View className='flex flex-row items-center align-center justify-center' style={{ width: 60 }}>
+                <View className='flex flex-row items-center align-center justify-center' style={{ width: columnWidths.height }}>
                     <TouchableOpacity onPress={() => handleSort("height")}>
                         <Text className='text-center font-supremeBold'>Height</Text>
                     </TouchableOpacity>
                     {selectedColumn === "height" ? <Ionicons name={direction === "asc" ? "arrow-up" : "arrow-down"} size={10} color="black" /> : null}
                 </View>
 
-                <View className='flex flex-row items-center align-center justify-center' style={{ width: 80 }}>
+                <View className='flex flex-row items-center align-center justify-center' style={{ width: columnWidths.marketValue }}>
                     <TouchableOpacity onPress={() => handleSort("marketValue")}>
                         <Text className='text-center font-supremeBold'>Market Value</Text>
                     </TouchableOpacity>
@@ -124,19 +141,19 @@ export const SquadTable = ({club}) => {
   const renderRow = (item, index) =>{
     return(
         <><View className='flex flex-row items-center  p-3 px-10 gap-5'>
-            <View className='flex flex-row items-center align-center gap-2' style={{ width: 180 }}>
+            <View className='flex flex-row items-center align-center gap-2' style={{ width: columnWidths.name }}>
                 <Image source={{ uri: item.photo }} className='rounded-full' style={{ width: 40, height: 40 }} resizeMode='contain' />
                 <Link href={{pathname: '/player/[id]', params:{id: item.id}}} className='text-center font-supreme'>{item.transfermarkt_name} </Link>
             </View>
-            <Text className='text-center font-supreme' style={{ width: 100 }}> {item.positions[0]} </Text>
-            <View className='flex flex-row items-center gap-2 ' style={{ width: 110 }}>
-                <Image source={{ uri: item.country.flag_url }} resizeMode="contain" style={{ width: 20, height: 20, borderRadius: 10 }} />
+            <Text className='text-center font-supreme' style={{ width: columnWidths.position }}> {item.positions?.[0]} </Text>
+            <View className='flex flex-row items-center gap-2 ' style={{ width: columnWidths.nationality }}>
+                {item.country?.flag_url ? <Image source={{ uri: item.country.flag_url }} resizeMode="contain" style={{ width: 20, height: 20, borderRadius: 10 }} /> : null}
                 <Text className='text-center font-supreme'> {item.nationality} </Text>
             </View>
-            <Text className='text-center font-supreme' style={{ width: 60 }}> {getAge(item.DOB)} </Text>
-            <Text className='text-center font-supreme' style={{ width: 60 }}> {item.squad_number} </Text>
-            <Text className='text-center font-supreme' style={{ width: 60 }}> {item.height} </Text>
-            <Text className='text-center font-supreme' style={{ width: 80 }}> € {item?.market_values ? shortenValue(item?.market_values.slice(-1)[0].market_value_in_eur) : '0'} </Text>
+            <Text className='text-center font-supreme' style={{ width: columnWidths.age }}> {getAge(item.DOB)} </Text>
+            <Text className='text-center font-supreme' style={{ width: columnWidths.number }}> {item.squad_number} </Text>
+            <Text className='text-center font-supreme' style={{ width: columnWidths.height }}> {item.height} </Text>
+            <Text className='text-center font-supreme' style={{ width: columnWidths.marketValue }}> € {item?.market_values?.length ? shortenValue(item.market_values.slice(-1)[0].market_value_in_eur) : '0'} </Text>
         </View><View className='border-b border-gray-300  w-full' /></>
         
     )

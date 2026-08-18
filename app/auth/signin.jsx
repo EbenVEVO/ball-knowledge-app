@@ -7,7 +7,7 @@ export default function SignIn(){
 
     const router = useRouter()
   return (
-    <View className=' absolute top-1/2 left-1/2 ' style={{ transform: [{ translateX: '50%' }, { translateY: '50%', borderWidth: 2, borderColor: 'black' }] }}>
+    <View className='flex-1 items-center justify-center p-6'>
         <Text>Welcome Back To Ball Knowledge</Text>
       <OTPVerification
         signUp={false}

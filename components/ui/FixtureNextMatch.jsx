@@ -96,7 +96,7 @@ const FixtureNextMatch = ({ away, home }) => {
     );
 
     return (
-        <View className='bg-white  rounded-xl p-3' style={{ width: '100%' }}>
+        <View className='bg-white  rounded-xl p-3' style={{ width: '100%', borderWidth: 1, borderColor: '#E5E5E5' }}>
             <Text style={{ fontSize: 16, fontFamily: 'supremeBold', paddingVertical: 8, paddingHorizontal: 4 }}>
                 Next Match
             </Text>

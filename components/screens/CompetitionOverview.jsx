@@ -1,39 +1,26 @@
-import { View, Text } from 'react-native'
+import { View, Platform, ScrollView } from 'react-native'
 import React from 'react'
+import { Tabs } from 'react-native-collapsible-tab-view'
 import LeagueTable from '../ui/LeagueTable'
 import LeagueUpcomingFixtures from '../ui/LeagueUpcomingFixtures'
+
+const ScrollContainer = Platform.OS === 'web' ? ScrollView : Tabs.ScrollView
 
 const CompetitionOverview = ({competition, season}) => {
   return (
     <View>
-
-        <View className="flex flex-row gap-5 p-3">
-            <View style={{flex:2}}>
+      <ScrollContainer>
+        <View className={`flex ${Platform.OS ==='web' ? 'flex-row' : 'flex-col'} gap-5 p-3 w-full`}>
+            {competition.type !== 'Cup' &&
+            <View  style={{flex: Platform.OS ==='web' && 2}}>
                 <LeagueTable season={season}/>
             </View>
-            <View style={{flex:1}}>
+            }
+            <View style={{flex: Platform.OS ==='web' && 1}}>
                 <LeagueUpcomingFixtures season={season}/>
             </View>
         </View>
-      <View className="flex flex-row gap-5 p-3">
-        <View style={{flex:1}}>
-            <Text>Top Ratings PlaceHolder</Text>
-        </View>
-
-        <View style={{flex:1}}>
-            <Text>Top Scorers PlaceHolder</Text>
-        </View>
-
-        <View style={{flex:1}}>
-            <Text>Top Assisters PlaceHolder</Text>
-        </View>
-        
-
-      </View>
-
-      <View>
-        <Text>Top Team Stats</Text>
-      </View>
+      </ScrollContainer>
     </View>
   )
 }

@@ -1,33 +1,97 @@
 import { createMaterialTopTabNavigator,} from '@react-navigation/material-top-tabs';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
+import { Tabs, useFocusedTab } from 'react-native-collapsible-tab-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GLASS_ROW_HEIGHT } from '../ui/GlassIconButton';
+import { FLATTENED_HEADER_HEIGHT } from './CollapsibleHeaderCrossfade';
 import {TeamOverview} from '../screens/TeamOverview';
 import {TeamSquad} from '../screens/TeamSquad';
 import {TeamFixtures} from '../screens/TeamFixtures';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, Animated, Pressable} from 'react-native'
 import { useWindowDimensions } from 'react-native';
 import React from 'react'
+import TeamStats from '../screens/TeamStats';
 
-export const TopBar = ({club}) => {
+export const TopBar = ({club, renderHeader}) => {
   const {height} = useWindowDimensions();
  const Tab = createMaterialTopTabNavigator();
+ const insets = useSafeAreaInsets();
  if (!club) console.log('error no club')
   else console.log(club);
-  return (
-    <Tab.Navigator
-    style={{flex: 1, height: height}}
-    tabBar={props => <CustomTabBar {...props} />}
-    screenOptions={{lazy: false,
 
-      
-    }}
-    >
-        <Tab.Screen name="Overview" children={
-          (props) => (<TeamOverview {...props} club={club} />)} />
-        <Tab.Screen name="Stats" children={(props) => (<TeamOverview {...props} club={club} />)} />
-        <Tab.Screen name="Fixtures" children={(props) => (<TeamFixtures {...props} club={club} />)}/>
-        <Tab.Screen name="Squad" children={(props) => (<TeamSquad {...props} club={club} />)}/>
-        <Tab.Screen name="History" component={TeamOverview} initialParams={{club: club}}/>
-    </Tab.Navigator>
+  if (Platform.OS !== 'web') {
+    return (
+      <Tabs.Container
+        renderHeader={renderHeader}
+        renderTabBar={props => <CollapsibleCustomTabBar {...props} />}
+        minHeaderHeight={insets.top + GLASS_ROW_HEIGHT + FLATTENED_HEADER_HEIGHT}
+      >
+        <Tabs.Tab name="Overview">
+          <TeamOverview club={club} />
+        </Tabs.Tab>
+        <Tabs.Tab name="Stats">
+          <TeamStats club={club} />
+        </Tabs.Tab>
+        <Tabs.Tab name="Fixtures">
+          <TeamFixtures club={club} />
+        </Tabs.Tab>
+        <Tabs.Tab name="Squad">
+          <TeamSquad club={club} />
+        </Tabs.Tab>
+        <Tabs.Tab name="History">
+          <TeamOverview club={club} />
+        </Tabs.Tab>
+      </Tabs.Container>
+    )
+  }
+
+  return (
+    <NavigationIndependentTree>
+      <NavigationContainer>
+        <Tab.Navigator
+        style={{flex: 1}}
+        tabBar={props => <CustomTabBar {...props} />}
+        screenOptions={{lazy: true,
+
+
+        }}
+        >
+            <Tab.Screen name="Overview" children={
+              (props) => (<TeamOverview {...props} club={club} />)} />
+            <Tab.Screen name="Stats" children={(props) => (<TeamStats {...props} club={club} />)} />
+            <Tab.Screen name="Fixtures" children={(props) => (<TeamFixtures {...props} club={club} />)}/>
+            <Tab.Screen name="Squad" children={(props) => (<TeamSquad {...props} club={club} />)}/>
+            <Tab.Screen name="History" component={TeamOverview} initialParams={{club: club}}/>
+        </Tab.Navigator>
+      </NavigationContainer>
+    </NavigationIndependentTree>
   )
+}
+
+const CollapsibleCustomTabBar = ({ tabNames, onTabPress }) => {
+  const focusedTab = useFocusedTab()
+
+  return (
+    <View style={styles.tabContainer}>
+      {tabNames.map((name) => {
+        const isFocused = focusedTab === name
+
+        return (
+          <Pressable
+            key={name}
+            accessibilityRole={'button'}
+            accessibilityState={isFocused ? { selected: true } : {}}
+            onPress={() => onTabPress(name)}
+            style={styles.tabItem}
+          >
+            <Text style={[styles.tabBarLabel, {fontFamily: 'supreme'}, isFocused ? {color: 'blue'} : {color: 'black'}]}>
+              {name}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
 }
 
 const CustomTabBar = ({ state, descriptors, navigation, position}) => {

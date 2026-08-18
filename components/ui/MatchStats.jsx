@@ -31,11 +31,16 @@ export const MatchStats = ({fixture}) => {
   };
 
   const statNames = [
-    'Expected Goals (xG)', 'Total Shots', 'Shots on Goal', 'Shots off Goal',
+    'expected_goals', 'Total Shots', 'Shots on Goal', 'Shots off Goal',
     'Blocked Shots', 'Shots Outside Box', 'Shots Inside Box', 'Total passes',
     'Accurate Passes', 'Fouls', 'Yellow Cards', 'Red Cards', 'Corner Kicks',
-    'Offsides', 'Goalkeeper Saves',
+    'Offsides', 'Goalkeeper Saves', 'goals_prevented',
   ]
+
+  const statLabels = {
+    expected_goals: 'Expected Goals (xG)',
+    goals_prevented: 'Goals Prevented',
+  }
 
   useEffect(() => {
     const stats = fixture.teamStats
@@ -97,14 +102,14 @@ export const MatchStats = ({fixture}) => {
       </View>
 
       {/* Ball Possession */}
-      <Text 
-              className='font-supreme' 
-              style={[styles.statName, { flex: 2, textAlign: 'center' }]}
+      <Text
+              className='font-supreme'
+              style={[styles.statName, { textAlign: 'center' }]}
               numberOfLines={2}
               adjustsFontSizeToFit
             >
               Ball Possesion
-            </Text>       
+            </Text>
          <View className='flex flex-row justify-between w-full py-2'>
                 <View className='flex flex-row items-center ' style={{width: `${homePossession}`, backgroundColor: darkenColor(homeColors[0]), height: 30, borderTopLeftRadius: 10, borderBottomLeftRadius: 10}}>
                     <Text className='text-md font-supreme px-3 text-white'>{homePossession}</Text>
@@ -157,11 +162,11 @@ export const MatchStats = ({fixture}) => {
               numberOfLines={2}
               adjustsFontSizeToFit
             >
-              {stat.type}
+              {statLabels[stat.type] ?? stat.type}
             </Text>
-            
-            <Text 
-            className='font-supreme' 
+
+            <Text
+            className='font-supreme'
               style={[
                 styles.statValue, 
                 { 
@@ -190,10 +195,11 @@ export default MatchStats
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     borderRadius: 25,
-    backgroundColor: 'white', 
+    backgroundColor: 'white',
     padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   header: {
     marginBottom: 16,

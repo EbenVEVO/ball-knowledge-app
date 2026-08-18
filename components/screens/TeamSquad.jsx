@@ -1,12 +1,21 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, Platform, ScrollView } from 'react-native'
+import { Tabs } from 'react-native-collapsible-tab-view'
 import {SquadTable} from '../ui/SquadTable'
 import React from 'react'
 
 export const TeamSquad = ({club}) => {
+  if (Platform.OS === 'web') {
+    return (
+      <ScrollView style={{ flex: 1 }}>
+        <SquadTable club={club}/>
+      </ScrollView>
+    )
+  }
+
   return (
-    <View className=''>
+    <Tabs.ScrollView>
       <SquadTable club={club}/>
-    </View>
+    </Tabs.ScrollView>
   )
 }
 

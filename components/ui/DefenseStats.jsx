@@ -152,8 +152,10 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       borderRadius: 25,
-      backgroundColor: 'white', 
+      backgroundColor: 'white',
       padding: 16,
+      borderWidth: 1,
+      borderColor: '#E5E5E5',
     },
     header: {
       marginBottom: 16,

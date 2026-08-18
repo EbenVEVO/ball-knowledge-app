@@ -1,4 +1,9 @@
 import { createMaterialTopTabNavigator,} from '@react-navigation/material-top-tabs';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
+import { Tabs, useFocusedTab } from 'react-native-collapsible-tab-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GLASS_ROW_HEIGHT } from '../ui/GlassIconButton';
+import { FLATTENED_HEADER_HEIGHT } from './CollapsibleHeaderCrossfade';
 import {TeamOverview} from '../screens/TeamOverview';
 import {TeamSquad} from '../screens/TeamSquad';
 import {TeamFixtures} from '../screens/TeamFixtures';
@@ -7,25 +12,78 @@ import { StyleSheet, Text, View, TouchableOpacity, Platform, Animated, Pressable
 import { useWindowDimensions } from 'react-native';
 import {PlayerMatches} from '../screens/PlayerMatches';
 import React from 'react'
+import PlayerCareerStats from '../screens/PlayerCareerStats';
 
-export const PlayerTopBar = ({player, club}) => {
+export const PlayerTopBar = ({player, club, renderHeader}) => {
   const {height} = useWindowDimensions();
  const Tab = createMaterialTopTabNavigator();
-  return (
-    <Tab.Navigator
-    style={{flex: 1, height: height}}
-    tabBar={props => <CustomTabBar {...props} />}
-    screenOptions={{lazy: false,
+ const insets = useSafeAreaInsets();
 
-      
-    }}
-    >
-        <Tab.Screen name="Overview" children={
-          (props) => (<PlayerOverview {...props} player={player} club={club} />)} />  
-        <Tab.Screen name="Matches" children={(props) => (<PlayerMatches {...props} player={player} />)} />
-        <Tab.Screen name="Career Stats" children={(props) => (<PlayerOverview {...props} />)} />
-    </Tab.Navigator>
+  if (Platform.OS !== 'web') {
+    return (
+      <Tabs.Container
+        renderHeader={renderHeader}
+        renderTabBar={props => <CollapsibleCustomTabBar {...props} />}
+        minHeaderHeight={insets.top + GLASS_ROW_HEIGHT + FLATTENED_HEADER_HEIGHT}
+      >
+        <Tabs.Tab name="Overview">
+          <PlayerOverview player={player} club={club} />
+        </Tabs.Tab>
+        <Tabs.Tab name="Matches">
+          <PlayerMatches player={player} />
+        </Tabs.Tab>
+        <Tabs.Tab name="Career Stats">
+          <PlayerCareerStats player={player} />
+        </Tabs.Tab>
+      </Tabs.Container>
+    )
+  }
+
+  return (
+    <NavigationIndependentTree>
+      <NavigationContainer>
+        <Tab.Navigator
+        style={{flex: 1}}
+        tabBar={props => <CustomTabBar {...props} />}
+        screenOptions={{lazy: true,
+
+
+        }}
+        >
+            <Tab.Screen name="Overview" children={
+              (props) => (<PlayerOverview {...props} player={player} club={club} />)} />
+            <Tab.Screen name="Matches" children={(props) => (<PlayerMatches {...props} player={player} />)} />
+            <Tab.Screen name="Career Stats" children={(props) => (<PlayerCareerStats player={player} {...props} />)} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </NavigationIndependentTree>
   )
+}
+
+const CollapsibleCustomTabBar = ({ tabNames, onTabPress }) => {
+  const focusedTab = useFocusedTab()
+
+  return (
+    <View style={styles.tabContainer}>
+      {tabNames.map((name) => {
+        const isFocused = focusedTab === name
+
+        return (
+          <Pressable
+            key={name}
+            accessibilityRole={'button'}
+            accessibilityState={isFocused ? { selected: true } : {}}
+            onPress={() => onTabPress(name)}
+            style={styles.tabItem}
+          >
+            <Text style={[styles.tabBarLabel, {fontFamily: 'supreme'}, isFocused ? {color: 'blue'} : {color: 'black'}]}>
+              {name}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
 }
 
 const CustomTabBar = ({ state, descriptors, navigation, position}) => {

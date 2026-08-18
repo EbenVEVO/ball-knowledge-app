@@ -6,12 +6,14 @@ import { Animated, FlatList, Image, Pressable, Text, View } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 import { useAuth } from '../../contexts/AuthContext';
+import { useRequireAuth } from '../../hooks/useRequireAuth';
 
 const Comment = ({comment, isNew, backgroundColor, setReplyingTo, reply_comment, reply_comment_name, type}) => {
     const [loading, setLoading] = useState()
     const [replies, setReplies] = useState([])
     const [liked, setLiked] = useState(false)
     const {profile , session} = useAuth()
+    const requireAuth = useRequireAuth()
 
     const table = type === 'match' ? 'social_match_comment_likes' : 'social_player_comment_likes'
     const replyTable = type === 'match' ? 'social_match_comments' : 'social_player_comments'
@@ -147,14 +149,14 @@ const Comment = ({comment, isNew, backgroundColor, setReplyingTo, reply_comment,
             <View className='flex flex-row gap-5 items-center w-full' >
             <Text >{formatTime(comment.created_at)}</Text>
             <Pressable
-              onPress={()=> setReplyingTo(comment)}
+              onPress={()=> requireAuth(() => setReplyingTo(comment))}
             >
               <Text>Reply</Text>
             </Pressable>
             <Entypo name="dots-three-horizontal" size={15} color="gray" />
             <View className='items-center' style={{flex:1, flexDirection:'row', gap: 5}}>
               <Pressable
-                onPress={()=>handleLike(comment.id)}
+                onPress={()=>requireAuth(() => handleLike(comment.id))}
               >
               {liked? 
               <FontAwesome name="heart" size={15} color="#A477C7" /> : 

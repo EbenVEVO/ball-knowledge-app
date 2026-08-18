@@ -65,17 +65,6 @@ const splitPosition = (position) => {
   return splitPos[0][0]+splitPos[1][0]
 }
 
-const abbreviateValue = (value) => {
-  if (value >= 1000000) {
-    return (value/1000000).toFixed(1) + "M"
-  }
-  else if (value >= 1000) {
-    return (value/1000).toFixed(1) + "K"
-  }
-  else {
-    return value.toFixed(1)
-  }
-}
   return (
 
     <>
@@ -90,11 +79,7 @@ const abbreviateValue = (value) => {
                   <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2), flexShrink:1}}className='text-lg text-white font-supremeBold '>{splitPosition(player?.positions[0]) }</Text>
                   <Text  style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}} className='text-sm text-gray-200 font-supreme text-center'>Position</Text>
               </View>}
-              <View className='flex flex-col items-center px-5 '  style={{justifyContent:'flex-start',  width: '33%'}}>
-
-                  <Text numberOfLines={1} style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2), flexShrink:1}}className='text-lg text-white font-supremeBold'>{`€${player?.market_values ? abbreviateValue(player?.market_values.at(-1).market_value_in_eur) : '0'}` }</Text>
-                  <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}}className='text-sm text-gray-200 font-supreme text-center'>Value</Text>
-              </View>
+             
               <View className='flex flex-col items-center px-5' style={{justifyContent:'flex-start',  width: '33%' }} >
                   <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}} className='text-lg text-white font-supremeBold '>{calcAge(player?.DOB) } years</Text>
                   <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}}className='text-sm text-gray-200 font-supreme text-center'>{player?.DOB}</Text>
@@ -133,11 +118,6 @@ const abbreviateValue = (value) => {
                   <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2), flexShrink:1}}className='text-lg text-white font-supremeBold '>{splitPosition(player?.positions[0]) }</Text>
                   <Text  style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}} className='text-sm text-gray-200 font-supreme text-center'>Position</Text>
               </View>}
-              <View className='flex flex-col items-center px-5 '  style={{justifyContent:'flex-start',  width: '33%'}}>
-
-                  <Text numberOfLines={1} style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2), flexShrink:1}}className='text-lg text-white font-supremeBold'>{`€${player?.market_values ? abbreviateValue(player?.market_values.at(-1).market_value_in_eur) : '0'}` }</Text>
-                  <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}}className='text-sm text-gray-200 font-supreme text-center'>Value</Text>
-              </View>
               <View className='flex flex-col items-center px-5' style={{justifyContent:'flex-start',  width: '33%' }} >
                   <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}} className='text-lg text-white font-supremeBold '>{calcAge(player?.DOB) } years</Text>
                   <Text style = {{color: lightenColor(colors.length == 3 ? colors[1] == '#FFFFFF'? colors[1]:colors[2]: colors[1], 0.2)}}className='text-sm text-gray-200 font-supreme text-center'>{player?.DOB}</Text>

@@ -135,9 +135,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   title: {
     fontSize: 15,
+    fontFamily: 'Supreme',
     fontWeight: '700',
     marginBottom: 12,
   },
@@ -166,6 +169,8 @@ const styles = StyleSheet.create({
   scoreText: {
     color: '#ffffff',
     fontSize: 12,
+        fontFamily: 'Supreme',
+
     fontWeight: '700',
     letterSpacing: 0.5,
   },

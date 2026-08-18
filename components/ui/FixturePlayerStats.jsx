@@ -227,7 +227,7 @@ const WebLayout = ({ playerStats, section, setSection, sections, selectedColumn,
     );
 
     return (
-        <View className='bg-white rounded-xl'>
+        <View className='bg-white rounded-xl' style={{ borderWidth: 1, borderColor: '#E5E5E5' }}>
             <Text className='p-5 font-supremeBold text-xl text-center'>Player Stats</Text>
             <FlashList
                 ListHeaderComponent={renderHeader}
@@ -245,7 +245,7 @@ const MobileLayout = ({ playerStats, section, setSection, sections, selectedColu
     const columns = columnDefs[section];
 
     return (
-        <View style={{ backgroundColor: 'white', borderRadius: 12 }}>
+        <View style={{ backgroundColor: 'white', borderRadius: 12, borderWidth: 1, borderColor: '#E5E5E5' }}>
             <Text style={{ padding: 20, fontSize: 18, textAlign: 'center', fontFamily: 'supremeBold' }}>
                 Player Stats
             </Text>

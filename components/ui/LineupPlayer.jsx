@@ -2,20 +2,26 @@ import { Image, StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView }
 import { PlayerModal } from '../ui/PlayerModal'
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons'
 import React, { useState, useMemo } from 'react'
+import PlayerBottomSheet from './PlayerBottomSheet'
 
 export const LineupPlayer = ({ 
   player, 
+  fixture,
   position, 
   awayTeam = false, 
   stats, 
-  goalScorer, 
-  assist, 
-  subbed, 
-  horizontal = true 
+  goalScorer,
+  assist,
+  subbed,
+  redCard,
+  yellowCard,
+  ownGoal,
+  horizontal = true
 }) => {
+
+  const PlayerSheet = Platform.OS === 'web' ? PlayerModal : PlayerBottomSheet
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Use useMemo to prevent re-calculating position object on every render
   const gridPosition = useMemo(() => {
     const pos = horizontal ? {
       'GK': { x: -2, y: 45 },
@@ -27,6 +33,7 @@ export const LineupPlayer = ({
       'LM': { x: 20, y: 6 },
       'LCM': { x: 20, y: 23 },
       'CM': { x: 20, y: 45 },
+      'CDM': {x:17, y:45},
       'RCM': { x: 20, y: 62 },
       'RM': { x: 20, y: 83 },
       'LW': { x: 38, y: 15 },
@@ -51,6 +58,8 @@ export const LineupPlayer = ({
   // Midfielders (Middle of the half)
   'LM':  { x: 12, y: 71 },
   'LCM': { x: 32, y: 71 },
+  'CDM': {x:50, y:73},
+
   'CM':  { x: 50, y: 73 },
   'RCM': { x: 68, y: 71 },
   'RM':  { x: 88, y: 71 },
@@ -70,7 +79,6 @@ export const LineupPlayer = ({
     return position && pos[position] ? pos[position] : { x: 0, y: 0 };
   }, [position, horizontal]);
 
-  // Calculate dynamic style based on orientation and team
   const getPlayerStyle = () => {
     const pWidth = 150;
     const pHeight = 100;
@@ -117,10 +125,11 @@ export const LineupPlayer = ({
             style={{ width: 50, height: 50, borderRadius: 25, borderWidth: 2, borderColor: 'white' }}
           />
           
-          {/* Goal Scorer Badge */}
-          {goalScorer && (
-            <View className='bg-white rounded-full absolute' style={{ bottom: -5, right: -10, padding: 1 }}>
-              <MaterialIcons name='sports-soccer' size={18} color="black" />
+          {/* Goal Scorer / Own Goal Badge */}
+          {(goalScorer || ownGoal) && (
+            <View className='flex flex-row items-center bg-white rounded-full absolute' style={{ bottom: -5, right: -10, padding: 1, gap: 2 }}>
+              {goalScorer && <MaterialIcons name='sports-soccer' size={18} color="black" />}
+              {ownGoal && <MaterialIcons name='sports-soccer' size={18} color="red" />}
             </View>
           )}
 
@@ -131,12 +140,16 @@ export const LineupPlayer = ({
             </View>
           )}
 
-          {/* Subbed Badge */}
-          {subbed && (
-            <View className='bg-white rounded-full absolute' style={{ top: -4, left: -10, padding: 2 }}>
-              <View className='rounded-full bg-red-500' style={{ padding: 1 }}>
-                <AntDesign name="arrowdown" size={12} color="white" />
-              </View>
+          {/* Subbed / Card Badges */}
+          {(subbed || yellowCard || redCard) && (
+            <View className='flex flex-row items-center bg-white rounded-full absolute' style={{ top: -4, left: -10, padding: 2, gap: 2 }}>
+              {subbed && (
+                <View className='rounded-full bg-red-500' style={{ padding: 1 }}>
+                  <AntDesign name="arrow-down" size={12} color="white" />
+                </View>
+              )}
+              {yellowCard && <View style={{ width: 8, height: 12, backgroundColor: '#FCFF36', borderRadius: 2 }} />}
+              {redCard && <View style={{ width: 8, height: 12, backgroundColor: 'red', borderRadius: 2 }} />}
             </View>
           )}
 
@@ -160,8 +173,9 @@ export const LineupPlayer = ({
         </Text>
       </TouchableOpacity>
 
-      <PlayerModal 
-        isVisible={modalVisible} 
+      <PlayerSheet 
+        isVisible={modalVisible}
+        fixture={fixture} 
         onClose={() => setModalVisible(false)} 
         player={player} 
         stats={stats} 

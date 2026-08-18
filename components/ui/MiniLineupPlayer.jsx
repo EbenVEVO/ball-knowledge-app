@@ -65,7 +65,7 @@ export const MiniLineupPlayer = ({position, player, stats }) => {
         <TouchableOpacity className='flex items-center flex-col gap-2'>
           <View className='relative'>
             <Image 
-              source={{uri: stats.player.photo}} 
+              source={{uri: stats?.player?.photo}} 
               style={{width: 50, height: 50, borderRadius: 50}}
             />
           </View>

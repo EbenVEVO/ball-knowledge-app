@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, Platform } from 'react-native'
 import React, {useEffect, useRef, useState} from 'react'
+import { Tabs } from 'react-native-collapsible-tab-view'
 import {TeamForm} from '../ui/TeamForm'
 import {NextMatch} from '../ui/NextMatch'
 import {LeagueTable} from '../ui/LeagueTable'
@@ -38,32 +39,34 @@ export const TeamOverview = ({club }) => {
 
   return (
     <>
-  {Platform.OS === 'web' ?    <View style={{height: '100%'}}>
+  {Platform.OS === 'web' ?    <ScrollView style={{flex: 1}}>
         <View className='flex flex-row gap-5 p-3 '>
         <View style={{flex:2}}>
-          <View className='flex flex-row items-center p-5 px-5 w-full justify-center' style={{flexDirection:Platform.select({ios: 'column', android: 'column' }), gap: 20}}>
-            <TeamForm club={club} />
+          <View className='flex w-full py-3' style={{flexDirection:'column', gap: 20}}>
             <NextMatch club={club}/>
+            <TeamForm club={club} />
           </View>
           <LeagueTable
             highlighted = {club?.id}
             showLast5={true}
             season = {activeSeason}/>
         </View>
-          <View style={{flex:1,}}>
+          <View style={{flex:1}}>
             <LastLineup club={club}/>
-            <ClubFixtures club={club} perPage={5}/>
+            <View style={{height: 500}}>
+              <ClubFixtures club={club} perPage={5}/>
+            </View>
           </View>
           </View>
-        </View>:
-        <ScrollView style={{flex:1}} contentContainerStyle={{paddingBottom: 50, paddingTop: 20}} >
+        </ScrollView>:
+        <Tabs.ScrollView style={{flex:1}} contentContainerStyle={{paddingBottom: 50, paddingTop: 20}} >
           <View className='flex flex-col p-2 gap-5' style={{flex:1}}>
             <NextMatch club={club}/>
             <TeamForm club={club} />
             <LastLineup club={club} />
-            <LeagueTableMini highlighted={club?.id} season = {activeSeason}/> 
+            <LeagueTableMini highlighted={club?.id} season = {activeSeason}/>
             </View>
-          </ScrollView> 
+          </Tabs.ScrollView>
         }
   </>
   )

@@ -1,14 +1,16 @@
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, FlatList, Animated, Pressable} from 'react-native'
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, FlatList, Animated, Pressable, Platform} from 'react-native'
 import React, { useCallback, useEffect, useState, useRef  } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase } from '../../lib/supabase';
 import UserCommentInput from '../ui/UserCommentInput';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { BottomSheetScrollView, BottomSheetFlatList } from '@gorhom/bottom-sheet';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { comment } from 'postcss';
 import Comment from '../ui/Comment';
+import SignInPrompt from '../ui/SignInPrompt';
 
 export default function Comments({post_id, type, ListHeaderComponent}) {
     const {session, profile} = useAuth()
@@ -24,6 +26,7 @@ export default function Comments({post_id, type, ListHeaderComponent}) {
     const timeoutRefs = useRef({})
     const fadeAnims = useRef({})
 
+    const List = Platform.OS==='web' ? FlatList : BottomSheetFlatList
     const table = type === 'match' ? 'social_match_comments' : 'social_player_comments'
 
     const onViewableItemsChanged = useCallback(({viewableItems}) => {
@@ -83,7 +86,7 @@ export default function Comments({post_id, type, ListHeaderComponent}) {
         .is('parent_id',null)
         .order('created_at', {ascending: false })
         if(error){
-          console.log(error)
+          console.log(error, 'fetch comment error')
         }
         else{
           console.log(data)
@@ -206,7 +209,7 @@ export default function Comments({post_id, type, ListHeaderComponent}) {
           </TouchableOpacity>
         </View>}
      
-       <FlatList
+       <List
         ref={flatListRef}
         data={comments} 
         ListHeaderComponent={() => (
@@ -235,7 +238,7 @@ export default function Comments({post_id, type, ListHeaderComponent}) {
        />
       </View>
 
-        {session && (
+        {session ? (
           <UserCommentInput
           setUserComment={setUserComment}
           userComment={userComment}
@@ -243,7 +246,10 @@ export default function Comments({post_id, type, ListHeaderComponent}) {
           profile = {profile}
           replyingTo = {replyingTo}
           setReplyingTo={setReplyingTo} />
-        )}
+        )
+        :
+        <SignInPrompt message="Sign in to join the conversation." />
+      }
    </>
   )
 }

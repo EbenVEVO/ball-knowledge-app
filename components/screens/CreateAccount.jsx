@@ -43,7 +43,7 @@ export const CreateAccount = ({setUsername}) => {
   return (
     <View>
       <Text>Sign Up for Ball Knowledge</Text>
-      <Text>The Receipts Are Here! Sign up for Ball Knowledge for years of knowledge about your favorite teams and players in football.</Text>
+      <Text>Sign up for Ball Knowledge for years of knowledge about your favorite teams and players in football.</Text>
       <Text>Ask any footy question - get instant answers! Know Your Football</Text>
       <Text>Follow your favorite teams, players, and leagues</Text>
       <Text>Save queries and build collections of epic player performances</Text>

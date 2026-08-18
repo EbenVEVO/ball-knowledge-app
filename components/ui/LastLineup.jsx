@@ -137,6 +137,7 @@ export const LastLineup = ({club}) => {
           if (!position) return null
           return (
             <MiniLineupPlayer
+              
               key={index}
               player={player}
               stats={stats}

@@ -2,14 +2,11 @@ import { Platform, StyleSheet, Text, View, Image, Pressable } from 'react-native
 import Feather from '@expo/vector-icons/Feather';
 import {PlayerTopBar} from '../navigation/PlayerTopBar';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { supabase } from '../../lib/supabase';
-import { useEffect, useState } from 'react';
 import React from 'react'
 import { useAuth } from '../../contexts/AuthContext';
 
-export const PlayerHeader = ({player, club}) => {
+export const PlayerHeader = ({player, club, following, onFollow}) => {
   const {session} = useAuth();
-  const [following , setFollowing] = useState()
   let colors = ['#655085', '#FFFFFF']
   if (club?.colors) {
     colors = club?.colors
@@ -32,39 +29,6 @@ export const PlayerHeader = ({player, club}) => {
   // convert back to hex
   return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
   }
-  useEffect(() => {
-    async function checkFollowing(){
-      const {data, error} = await supabase.from('users_followed_players').select('*').eq('user_id', session?.user.id).eq('player_id', player.id).single()
-      if (data){
-       setFollowing(true)
-       console.log(data)
-      }
-      else{
-        console.log(error)
-        setFollowing(false)
-      }
-    }
-    checkFollowing()
-  })
-  const handleFollow = async ()=>{
-    if (following){
-      console.log('unfollow')
-     const {error} = await supabase.from('users_followed_players').delete().eq('user_id', session?.user.id).eq('player_id', player.id)
-     if (error) console.log(error)
-      setFollowing(false)
-    }
-    else {
-      console.log('follow')
-      const {data, error} = await supabase.from('users_followed_players').insert({user_id: session?.user.id, player_id: player.id})
-      if (error) console.log(error)
-      else{
-        console.log(data)
-          setFollowing(true)}
-      
-    }
-  }
-
-
   return (
     <><View
       className='flex flex-col p-5 '>
@@ -74,23 +38,23 @@ export const PlayerHeader = ({player, club}) => {
         <Text
           className='text-4xl text-white font-supremeBold'
           style={{ color: lightenColor(colors.length === 3 ? colors[1] == '#FFFFFF' ? colors[1] : colors[2] : colors[1], 0.2) }}
-        >{player?.transfermarkt_name} #{player?.squad_number}</Text>
-        <Text className='text-xl bg-white px-5 rounded-full text-center bg font-supreme' style={{ color: lightenColor(colors.length === 3 ? colors[1] == '#FFFFFF' ? colors[0] : colors[1] : colors[1] === '#FFFFFF' ? colors[0] : colors[1], 0.2) }}> {club?.club_name}</Text>
+        >{player?.transfermarkt_name}</Text>
+        <Text className='text-xl bg-white px-5 rounded-full text-center bg font-supreme' style={{ color: colors[0] === '#FFFFFF'?  colors[1]: colors[0] }}> {club?.club_name}</Text>
         <Image
           source={{ uri: player?.photo }}
           style={styles.playerImage}
           className='rounded-full ' />
 
       </View>
-       {session &&<View className='absolute top-1 right-5 flex flex-row gap-5' > 
-        
-            <Pressable 
-            className=' bg-white rounded-full px-10 py-2'
-            onPress={handleFollow}
+       {Platform.OS === 'web' && session &&<View className='absolute top-1 right-5 flex flex-row gap-5' >
+
+            <Pressable
+            className='bg-white rounded-full px-10 py-2'
+            onPress={onFollow}
             >
               {following ? <FontAwesome name="heart" size={40} color="#A477C7" /> : <FontAwesome name="heart-o" size={40} color="black" />}
             </Pressable>
-           
+
         </View>}
 
     </View></>

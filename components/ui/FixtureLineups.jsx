@@ -17,20 +17,23 @@ export const FixtureLineups = ({fixture}) => {
   const [goalScorers , setGoalScorers] = useState([])
   const [assisters , setAssisters] = useState([])
   const [redCards , setRedCards] = useState([])
-  const [yellowCards , setYellowCards] = useState([]) 
-  const [homeLineup , setHomeLineup] = useState(null)
-  const [awayLineup , setAwayLineup] = useState(null)
-  
+  const [yellowCards , setYellowCards] = useState([])
 
-  const { width: windowWidth } = useWindowDimensions(); 
+
+  const { width: windowWidth } = useWindowDimensions();
   console.log(windowWidth)
+
+  const playerStats = fixture.playerStats || []
+  const homeLineupInfo = fixture.lineups?.[0]
+  const awayLineupInfo = fixture.lineups?.[1]
+
 const handleLayout = (event) => {
     const { width } = event.nativeEvent.layout;
     setContainerWidth(width - 40);
   };
 
   useEffect(() => {
-    const events = fixture.events
+    const events = fixture.events || []
     let temp = []
     const subs = events.filter(e => e.event_type === 'subst')
     temp = []
@@ -83,12 +86,6 @@ const handleLayout = (event) => {
      temp.push(card.player_id )
     })    
     setYellowCards(temp)
-
-    console.log(fixture.lineups, 'lineups')
-    setAwayLineup(lineupFormation(fixture.lineups[1].starting_lineup))
-    setHomeLineup(lineupFormation(fixture.lineups[0].starting_lineup))
-    
-    
   }, [fixture])
 
   const lineupFormation = (lineup) => {
@@ -120,6 +117,8 @@ const handleLayout = (event) => {
       })
 
       console.log('players_by_row', players_by_row)
+      if (Object.keys(players_by_row).length === 0) return null
+
       const posMap = Object.keys(players_by_row).length < 5 ?
       {
         1:["GK"],
@@ -135,10 +134,13 @@ const handleLayout = (event) => {
            }
           })(),
         3: (()=>{
-          if (players_by_row[3].length === 2){
+          if (players_by_row[3].length === 1){
+            return ['CDM']
+          }
+          else if (players_by_row[3].length === 2){
             return ['LCM', 'RCM']
           }
-          
+
           else if(players_by_row[3].length === 3){
             return ['LCM', 'CM', 'RCM']
           }
@@ -179,7 +181,10 @@ const handleLayout = (event) => {
              }
             })(),
             3:(()=>{
-              if (players_by_row[3].length === 2){
+              if (players_by_row[3].length === 1){
+                return ['CDM']
+              }
+              else if (players_by_row[3].length === 2){
                 return ['LCM', 'RCM']
               }
               else if(players_by_row[3].length === 3){
@@ -202,6 +207,12 @@ const handleLayout = (event) => {
               else if(players_by_row[4].length === 3){
                 return ['LAM', 'CAM', 'RAM']
               }
+              else if(players_by_row[4].length === 4){
+                return ['LM', 'LCM', 'RCM', 'RM']
+              }
+              else if(players_by_row[4].length === 5){
+                return ['LM', 'LCM', 'CAM', 'RCM', 'RM']
+              }
             })(),
             5:(()=>{
               if(players_by_row[5].length === 1){
@@ -219,6 +230,16 @@ const handleLayout = (event) => {
         return posMap
 
   }
+
+  const homeLineup = useMemo(
+    () => fixture.lineups?.[0]?.starting_lineup ? lineupFormation(fixture.lineups[0].starting_lineup) : null,
+    [fixture],
+  )
+  const awayLineup = useMemo(
+    () => fixture.lineups?.[1]?.starting_lineup ? lineupFormation(fixture.lineups[1].starting_lineup) : null,
+    [fixture],
+  )
+
   const normalizePlayers = (lineup) => {
     if (!lineup || !Array.isArray(lineup)) return []
     return lineup.map(player =>
@@ -231,33 +252,128 @@ const handleLayout = (event) => {
       } : player
     )
   }
+
+  const hasGridData = useMemo(() => {
+    const sideHasFullGrid = (players) => {
+      if (!players || players.length === 0) return false
+      return players.every(player => (player?.player ? player.player.grid : player?.grid))
+    }
+    return sideHasFullGrid(fixture.lineups?.[0]?.starting_lineup) && sideHasFullGrid(fixture.lineups?.[1]?.starting_lineup)
+  }, [fixture])
+
+  const homeStartingPlayers = useMemo(
+    () => normalizePlayers(fixture.lineups?.[0]?.starting_lineup),
+    [fixture],
+  )
+  const awayStartingPlayers = useMemo(
+    () => normalizePlayers(fixture.lineups?.[1]?.starting_lineup),
+    [fixture],
+  )
+
+  const renderPlayerIcons = (playerId) => {
+    const events = fixture.events || []
+    const subOut = events.find(e => e.event_type === 'subst' && e.player_id === playerId)
+    const yellowCard = events.find(e => e.event_details === 'Yellow Card' && e.player_id === playerId)
+    const redCard = events.find(e => e.event_details === 'Red Card' && e.player_id === playerId)
+    const goals = events.filter(e => e.event_type === 'Goal' && e.player_id === playerId && e.event_details !== 'Missed Penalty')
+    const assists = events.filter(e => e.event_type === 'Goal' && e.player2_id === playerId)
+
+    return (
+      <>
+        {subOut && (
+          <View style={{ alignItems: 'center' }}>
+            <AntDesign name="arrow-down" size={12} color="red" />
+            <Text style={{ fontSize: 10, color: 'red' }}>{subOut.time_elapsed}'</Text>
+          </View>
+        )}
+        {goals.map((goal, i) => (
+          <MaterialIcons key={`goal-${i}`} name='sports-soccer' size={14} />
+        ))}
+        {assists.map((assist, i) => (
+          <FontAwesome key={`assist-${i}`} name="magic" size={12} color="black" />
+        ))}
+        {yellowCard && <View style={{ width: 10, height: 14, backgroundColor: '#FCFF36', borderRadius: 2 }} />}
+        {redCard && <View style={{ width: 10, height: 14, backgroundColor: 'red', borderRadius: 2 }} />}
+      </>
+    )
+  }
+
+  const renderSimpleLineup = () => {
+    const rowCount = Math.max(homeStartingPlayers.length, awayStartingPlayers.length)
+    return (
+      <View className='flex flex-col bg-white rounded-2xl p-3' style={{ width: '100%', borderWidth: 1, borderColor: '#E5E5E5' }}>
+        <View className='flex flex-row items-center justify-between px-2 pb-3'>
+          <Image source={{ uri: fixture.home_team.logo }} style={{ width: 24, height: 24 }} resizeMode='contain' />
+          <Text className='text-lg font-supremeBold'>Lineup</Text>
+          <Image source={{ uri: fixture.away_team.logo }} style={{ width: 24, height: 24 }} resizeMode='contain' />
+        </View>
+        {Array.from({ length: rowCount }).map((_, index) => {
+          const home = homeStartingPlayers[index]
+          const away = awayStartingPlayers[index]
+          const homeStats = home && playerStats.find(stat => stat.player_id === home.player_id)
+          const awayStats = away && playerStats.find(stat => stat.player_id === away.player_id)
+          return (
+            <View key={index} className='flex flex-row items-center justify-between py-2 border-b border-gray-100'>
+              <View className='flex flex-row items-center gap-2' style={{ flex: 1 }}>
+                {home && (
+                  <PlayerText fixture={fixture} player={home} stats={homeStats}>
+                    <View className='flex flex-row items-center gap-2'>
+                      <Image source={{ uri: homeStats?.player?.photo }} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <Text className='font-supremeBold' style={{ width: 24 }}>{home.number}</Text>
+                      <Text className='font-supremeBold' numberOfLines={1}>{home.player_name}</Text>
+                      {renderPlayerIcons(home.player_id)}
+                    </View>
+                  </PlayerText>
+                )}
+              </View>
+              <View className='flex flex-row items-center gap-2 justify-end' style={{ flex: 1 }}>
+                {away && (
+                  <PlayerText fixture={fixture} player={away} stats={awayStats}>
+                    <View className='flex flex-row items-center gap-2'>
+                      {renderPlayerIcons(away.player_id)}
+                      <Text className='font-supremeBold' style={{ textAlign: 'right' }} numberOfLines={1}>{away.player_name}</Text>
+                      <Text className='font-supremeBold' style={{ width: 24, textAlign: 'right' }}>{away.number}</Text>
+                      <Image source={{ uri: awayStats?.player?.photo }} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                    </View>
+                  </PlayerText>
+                )}
+              </View>
+            </View>
+          )
+        })}
+      </View>
+    )
+  }
+
   return (
-    <View 
-      className='flex flex-col rounded-2xl '  
-      
+    <View
+      className='flex flex-col rounded-2xl '
+      style={{ borderWidth: 1, borderColor: '#E5E5E5', overflow: 'hidden' }}
       onLayout={handleLayout}
     >
       <View className='flex flex-col p-5' style={{backgroundColor: '#B4FF80'}}>
 
 
-      {(Platform.OS === 'web' && containerWidth > 970) ?
+      {!hasGridData ? renderSimpleLineup() :
+      (Platform.OS === 'web' && containerWidth > 970) ?
       <Field width={containerWidth}>
           {
           !homeLineup ? null : 
           normalizePlayers(fixture.lineups[0].starting_lineup).map((player, index) => {
-            const position = homeLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-            const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
-            const goalScorer = goalScorers.includes(player.id)   // was player.player_id
-            const assist = assisters.includes(player.id)
-            const redCard = redCards.includes(player.id)
-            const yellowCard = yellowCards.includes(player.id)
-            const subbed = subbedOutPlayers.includes(player.id)
-            const og = ownGoals.includes(player.id)
+            const position = player?.grid ? homeLineup?.[player.grid.split(':')[0]]?.[player.grid.split(':')[1]-1] : undefined;
+            const stats = playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+            const goalScorer = goalScorers.includes(player.player_id)
+            const assist = assisters.includes(player.player_id)
+            const redCard = redCards.includes(player.player_id)
+            const yellowCard = yellowCards.includes(player.player_id)
+            const subbed = subbedOutPlayers.includes(player.player_id)
+            const og = ownGoals.includes(player.player_id)
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
+              fixture={fixture}
               player={player}
               stats={stats}
               position={position}
@@ -275,19 +391,20 @@ const handleLayout = (event) => {
         {
           !awayLineup ? null : 
           normalizePlayers(fixture.lineups[1].starting_lineup).map((player, index) => {
-          const position = awayLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
-          const goalScorer = goalScorers.includes(player.id)   // was player.player_id
-          const assist = assisters.includes(player.id)
-          const redCard = redCards.includes(player.id)
-          const yellowCard = yellowCards.includes(player.id)
-          const subbed = subbedOutPlayers.includes(player.id)
-          const og = ownGoals.includes(player.id)
+          const position = player?.grid ? awayLineup?.[player.grid.split(':')[0]]?.[player.grid.split(':')[1]-1] : undefined;
+          const stats = playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+          const goalScorer = goalScorers.includes(player.player_id)
+          const assist = assisters.includes(player.player_id)
+          const redCard = redCards.includes(player.player_id)
+          const yellowCard = yellowCards.includes(player.player_id)
+          const subbed = subbedOutPlayers.includes(player.player_id)
+          const og = ownGoals.includes(player.player_id)
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
+             fixture={fixture}
               player={player}
               stats={stats}
               position={position}
@@ -308,19 +425,20 @@ const handleLayout = (event) => {
         {
           !homeLineup ? null : 
           normalizePlayers(fixture.lineups[0].starting_lineup).map((player, index) => {
-          const position = homeLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
-          const goalScorer = goalScorers.includes(player.id)   // was player.player_id
-          const assist = assisters.includes(player.id)
-          const redCard = redCards.includes(player.id)
-          const yellowCard = yellowCards.includes(player.id)
-          const subbed = subbedOutPlayers.includes(player.id)
-          const og = ownGoals.includes(player.id)
+          const position = player?.grid ? homeLineup?.[player.grid.split(':')[0]]?.[player.grid.split(':')[1]-1] : undefined;
+          const stats = playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+          const goalScorer = goalScorers.includes(player.player_id)
+          const assist = assisters.includes(player.player_id)
+          const redCard = redCards.includes(player.player_id)
+          const yellowCard = yellowCards.includes(player.player_id)
+          const subbed = subbedOutPlayers.includes(player.player_id)
+          const og = ownGoals.includes(player.player_id)
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
+              fixture={fixture}
               player={player}
               stats={stats}
               position={position}
@@ -339,19 +457,20 @@ const handleLayout = (event) => {
         {
           !awayLineup ? null : 
           normalizePlayers(fixture.lineups[1].starting_lineup).map((player, index) => {
-          const position = awayLineup[player.grid.split(':')[0]][player.grid.split(':')[1]-1];
-          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
-          const goalScorer = goalScorers.includes(player.id)   // was player.player_id
-          const assist = assisters.includes(player.id)
-          const redCard = redCards.includes(player.id)
-          const yellowCard = yellowCards.includes(player.id)
-          const subbed = subbedOutPlayers.includes(player.id)
-          const og = ownGoals.includes(player.id)
+          const position = player?.grid ? awayLineup?.[player.grid.split(':')[0]]?.[player.grid.split(':')[1]-1] : undefined;
+          const stats = playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+          const goalScorer = goalScorers.includes(player.player_id)
+          const assist = assisters.includes(player.player_id)
+          const redCard = redCards.includes(player.player_id)
+          const yellowCard = yellowCards.includes(player.player_id)
+          const subbed = subbedOutPlayers.includes(player.player_id)
+          const og = ownGoals.includes(player.player_id)
           if (!position) {
             return null;
           }
           return (
             <LineupPlayer
+              fixture={fixture}
               player={player}
               stats={stats}
               position={position}
@@ -369,16 +488,16 @@ const handleLayout = (event) => {
         }
       </VerticalField>}
       </View>
-      <View className='flex flex-col p-5 bg-white gap-5' >
+      <View className='flex flex-col p-5 bg-white gap-5' style={{ borderWidth: 1, borderColor: '#E5E5E5' }}>
         <View className='flex flex-row items-center  '>
           <View style={{flex: 1, alignItem: 'flex-start'}}>
-          <Text className='text-lg font-supremeBold'>{fixture.lineups[0].coach}</Text>
+          <Text className='text-lg font-supremeBold'>{homeLineupInfo?.coach ?? '-'}</Text>
           </View>
             <View style={{flex: 1}}>
           <Text className='text-lg font-supremeBold text-center'>Head Coach</Text>
           </View>
           <View style={{flex: 1, alignItems: 'flex-end'}}>
-          <Text className='text-lg font-supremeBold'>{fixture.lineups[1].coach}</Text>
+          <Text className='text-lg font-supremeBold'>{awayLineupInfo?.coach ?? '-'}</Text>
           </View>
         </View>
 
@@ -388,15 +507,15 @@ const handleLayout = (event) => {
     // Wide layout: side by side
     <View className='flex flex-row items-start w-full'>
       <View className='flex flex-col' style={{flex: 1, alignItems: 'flex-start'}}>
-        {normalizePlayers(fixture.lineups[0].substitutes).map((player, index) => {
-              const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+        {normalizePlayers(homeLineupInfo?.substitutes).map((player, index) => {
+              const stats = playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
               return (
             <View key={index} className='flex flex-row items-center gap-2 py-1'>
               <Text className='text-lg font-supremeBold w-8'>{player.number}</Text>
-              <PlayerText player={player} stats={stats} >
+              <PlayerText fixture={fixture} player={player} stats={stats} >
                 <Text className='text-base font-supremeBold'>{player.player_name ? player.player_name : player.name}</Text>
               </PlayerText>
-              {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrowup" size={16} color="green" />}
+              {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrow-up" size={16} color="green" />}
               {goalScorers.includes(player.player_id) && <MaterialIcons name='sports-soccer' size={16} />}
               {assisters.includes(player.player_id) && <FontAwesome name="magic" size={16} color="black" />}
             </View>
@@ -405,14 +524,14 @@ const handleLayout = (event) => {
       </View>
 
       <View className='flex flex-col' style={{flex: 1, alignItems: 'flex-end'}}>
-        {normalizePlayers(fixture.lineups[1].substitutes).map((player, index) => {
-          const stats = fixture.playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
+        {normalizePlayers(awayLineupInfo?.substitutes).map((player, index) => {
+          const stats = playerStats.find(stat => stat.player_id === (player.id ? player.id : player.player_id  ))
           return (
             <View key={index} className='flex flex-row items-center gap-2 py-1'>
-              {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrowup" size={16} color="green" />}
+              {subbedPlayersIn.includes(player.player_id) && <AntDesign name="arrow-up" size={16} color="green" />}
               {goalScorers.includes(player.player_id) && <MaterialIcons name='sports-soccer' size={16} />}
               {assisters.includes(player.player_id) && <FontAwesome name="magic" size={16} color="black" />}
-              <PlayerText player={player} stats={stats} >
+              <PlayerText fixture={fixture} player={player} stats={stats} >
                 <Text className='text-base font-supremeBold'>{player.player_name ? player.player_name : player.name}</Text>
               </PlayerText>
               <Text className='text-lg font-supremeBold w-8'>{player.number}</Text>
@@ -430,12 +549,12 @@ const handleLayout = (event) => {
         <Text className='font-supremeBold'>{fixture.home_team.club_name}</Text>
       </View>
       <View className='flex flex-col gap-2' style={{height: '100%'}}>
-      {normalizePlayers(fixture.lineups[0].substitutes).map((player, index) => {
-        const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+      {normalizePlayers(homeLineupInfo?.substitutes).map((player, index) => {
+        const stats = playerStats.find(stat => stat.player_id === player.player_id)
         return (
           <PlayerText player={player} stats={stats}>
           <View key={index} className='flex flex-col items-center gap-2 py-1'>
-            <Image source={{uri: stats?.player.photo}} style={{width: 40, height: 40, borderRadius: 25}} />
+            <Image source={{uri: stats?.player?.photo}} style={{width: 40, height: 40, borderRadius: 25}} />
             
             <Text className='text-xs font-supremeBold'>{`${player.number}. ${player.player_name}`}</Text>
           </View>
@@ -451,11 +570,11 @@ const handleLayout = (event) => {
         <Text className='font-supremeBold'>{fixture.away_team.club_name}</Text>
       </View>
       <View className='flex flex-col gap-2' style={{height: '100%'}}>
-      {normalizePlayers(fixture.lineups[1].substitutes).map((player, index) => {
-        const stats = fixture.playerStats.find(stat => stat.player_id === player.player_id)
+      {normalizePlayers(awayLineupInfo?.substitutes).map((player, index) => {
+        const stats = playerStats.find(stat => stat.player_id === player.player_id)
         return (
           <View key={index} className='flex flex-col items-center gap-2 py-1'>
-            <Image source={{uri: stats?.player.photo}} style={{width: 40, height: 40, borderRadius: 25}} />
+            <Image source={{uri: stats?.player?.photo}} style={{width: 40, height: 40, borderRadius: 25}} />
             <Text className='text-xs font-supremeBold'>{`${player.number}. ${player.player_name}`}</Text>
           </View>
         )

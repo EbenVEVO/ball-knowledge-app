@@ -26,6 +26,8 @@ const formatDate = (date) => {
     }
     fetchGames()
   }, [player])
+
+  if(!lastGames) return null
   return (
     <View className='rounded-2xl bg-white w-full  ' style={{flex: Platform.OS === 'web'&& 1}}>
       <Text className='text-2xl font-supremeBold p-2'> Last 5</Text>
@@ -47,7 +49,7 @@ const formatDate = (date) => {
                 }
             }
             return(
-              <><View key={index} className='flex flex-col  p-3  gap-2'>
+              <><View key={index} className='flex flex-col  p-2  gap-1'>
                     <View className='flex flex-row items-center gap-2 py-2' style={{alignSelf: 'flex-end'}}>
                         <Image source={{ uri: game.fixture.league.logo }} style={{ width: 20, height: 20 }} resizeMode='contain' />
                         <Text className='font-supreme text-xs'>{game.fixture.league.name}</Text>

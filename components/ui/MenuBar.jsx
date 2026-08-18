@@ -14,9 +14,8 @@ const MenuBar = () => {
 
     const menuItems = [
         {name: 'Home', path: '/', icon: ()=>(<Entypo name="home" size={24} color="black" />)},
-        {name: 'Notifications', path:'', icon: ()=>(<Ionicons name="notifications" size={24} color="black" />)},
-        {name: 'Collections', path:'', icon: ()=>(<MaterialCommunityIcons name="cards" size={24} color="black" />)},
-        {name: 'Community Trends', path: '', icon: ()=>(<MaterialIcons name="local-fire-department" size={24} color="black" />)},
+        {name: 'Collections', path:'/collections/home', icon: ()=>(<MaterialCommunityIcons name="cards" size={24} color="black" />)},
+        {name: 'Games', path:'/games/home', icon: ()=>(<Ionicons name="football" size={24} color="black" />)},
        session ? {name:'Profile', path:`/profile/${profile?.username}`, icon:()=>(<Ionicons name="person-circle-outline" size={24} color="black" />)} : {name:'Sign In/Up', path: '/auth/signup', icon:()=>(<Ionicons name="person-circle-outline" size={24} color="black" />)},
         {name:'More', path: '', icon:()=>(<Feather name="more-horizontal" size={24} color="black" />
         )}

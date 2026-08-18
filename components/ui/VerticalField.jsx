@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import Svg, { Rect, Line, Circle, Path } from 'react-native-svg'
 import React from 'react'
 
-export const VerticalField = ({ children, width = 600, height = 1000 }) => {
+export const VerticalField = ({ children, width = 600, height = 1000, bgColor = '#B4FF80', lineColor = 'gray' }) => {
 
   // Swapped the height/width multipliers for a vertical layout
   const penaltyAreaHeight = height * 0.14; // Depth into the field
@@ -12,9 +12,9 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
   const centerCircleRadius = Math.min(width, height) * 0.1;
 
   return (
-    <View 
-      className="relative overflow-hidden"
-      style={{ width: `${width}px`, height: `${height}px`, backgroundColor: '#B4FF80' }}
+    <View
+      className="relative"
+      style={{ width: `${width}px`, height: `${height}px`, backgroundColor: bgColor }}
     >
       <Svg
         width={width}
@@ -29,7 +29,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           width={width - 4}
           height={height - 4}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -39,7 +39,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           y1={height / 2}
           x2={width - 2}
           y2={height / 2}
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -49,7 +49,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           cy={height / 2}
           r={centerCircleRadius}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -58,7 +58,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           cx={width / 2}
           cy={height / 2}
           r="4"
-          fill="gray"
+          fill={lineColor}
         />
 
         {/* Top penalty area */}
@@ -68,7 +68,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           width={penaltyAreaWidth}
           height={penaltyAreaHeight}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -79,7 +79,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           width={goalAreaWidth}
           height={goalAreaHeight}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -88,7 +88,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           cx={width / 2}
           cy={penaltyAreaHeight * 0.65}
           r="4"
-          fill="gray"
+          fill={lineColor}
         />
 
         {/* Top penalty arc */}
@@ -97,7 +97,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
               A ${centerCircleRadius * 1.2} ${centerCircleRadius * 1.2} 0 0 0 
               ${width / 2 + centerCircleRadius * 1.2} ${penaltyAreaHeight + 2}`}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -109,7 +109,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           width={penaltyAreaWidth}
           height={penaltyAreaHeight}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -120,7 +120,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           width={goalAreaWidth}
           height={goalAreaHeight}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 
@@ -129,7 +129,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
           cx={width / 2}
           cy={height - penaltyAreaHeight * 0.65}
           r="4"
-          fill="gray"
+          fill={lineColor}
         />
 
         {/* Bottom penalty arc */}
@@ -138,7 +138,7 @@ export const VerticalField = ({ children, width = 600, height = 1000 }) => {
               A ${centerCircleRadius * 1.2} ${centerCircleRadius * 1.2} 0 0 1 
               ${width / 2 + centerCircleRadius * 1.2} ${height - penaltyAreaHeight - 2}`}
           fill="none"
-          stroke="gray"
+          stroke={lineColor}
           strokeWidth="1"
         />
 

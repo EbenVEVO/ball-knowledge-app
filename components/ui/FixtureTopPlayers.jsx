@@ -24,7 +24,7 @@ const FixtureTopPlayers = ({fixture}) => {
     if (!playerStats) return null
     console.log(topAwayPlayers, topHomePlayers)
   return (
-    <View className='rounded-2xl bg-white w-full  p-4'>
+    <View className='rounded-2xl bg-white w-full  p-4' style={{ borderWidth: 1, borderColor: '#E5E5E5' }}>
       <Text className='font-supremeBold text-xl mb-2'>Top Performers</Text>
       <View className='flex flex-col gap-5'>
         <View className='flex flex-row justify-between p-2 '>

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Text, View, Image } from 'react-native'
+import { FlatList, Text, View, Image, Platform } from 'react-native'
+import { Tabs } from 'react-native-collapsible-tab-view'
 
 import { supabase } from '../../lib/supabase'
 import { Link } from 'expo-router'
+
+const List = Platform.OS === 'web' ? FlatList : Tabs.FlatList
 
 const LeagueSeasonsCards = ({seasons}) => {
     const [prevWinners, setPrevWinners] = useState([])
@@ -12,21 +15,21 @@ const LeagueSeasonsCards = ({seasons}) => {
               const pastSeasons = seasons.filter(season => !season.current)
               const results = await Promise.all(
                   pastSeasons.map(async (season) => {
-                      const {data: winner, error: winnerError} = await supabase
+                      const {data: winner} = await supabase
                           .from('league_standings')
                           .select(`*, team:club_id(id, club_name, logo)`)
                           .eq('season_id', season.id)
                           .eq('rank', 1)
-                          .single()
-                      
-                      const {data: runnerUp, error: runnerUpError} = await supabase
+                          .maybeSingle()
+
+                      const {data: runnerUp} = await supabase
                           .from('league_standings')
                           .select(`*, team:club_id(id, club_name, logo)`)
                           .eq('season_id', season.id)
                           .eq('rank', 2)
-                          .single()
-                      
-                      if(!winnerError && !runnerUpError){
+                          .maybeSingle()
+
+                      if(winner && runnerUp){
                           return {
                               season: season,
                               winner: winner.team,
@@ -76,7 +79,7 @@ const LeagueSeasonsCards = ({seasons}) => {
   if(!seasons)return
   return (
     <View>
-      <FlatList
+      <List
         data={prevWinners}
         contentContainerStyle={{padding: 10, gap:20}}
         columnWrapperStyle={{gap:20}}

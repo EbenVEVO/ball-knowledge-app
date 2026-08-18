@@ -1,174 +1,337 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Platform } from 'react-native'
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'expo-router';
-import { supabase } from '../../lib/supabase';
-import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { last } from 'lodash';
+import { Link } from 'expo-router'
+import { supabase } from '../../lib/supabase'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 
+const TWITTER_EMOJI_BASE = "https://cdn.jsdelivr.net/npm/emoji-datasource-twitter/img/twitter/64/"
 
+const getRatingColor = (rating) => {
+  if (rating > 8.9) return '#12CCFF'
+  if (rating > 6.9) return '#00F70C'
+  if (rating > 5.9) return '#FF9C00'
+  return 'red'
+}
 
-const TWITTER_EMOJI_BASE = "https://cdn.jsdelivr.net/npm/emoji-datasource-twitter/img/twitter/64/";
+const getResult = (lastGame) => {
+  const isHome = lastGame?.fixture.home_team.id === lastGame?.team_id
+  const home = lastGame?.fixture.home_score
+  const away = lastGame?.fixture.away_score
+  if (isHome) return home > away ? 'W' : home < away ? 'L' : 'D'
+  return away > home ? 'W' : away < home ? 'L' : 'D'
+}
 
-export const PlayerLastGame = ({player}) => {
-    const [lastGame , setLastGame] = useState()
-    const [topReactions, setTopReactions] = useState([])
-    const [reactions, setReactions] = useState([])
-    const [reactionCount, setReactionCount] = useState()
+// ── Stat primitives ───────────────────────────────────────────────────────────
+const StatItem = ({ label, value }) => (
+  <View style={styles.statItem}>
+    <Text style={styles.statValue}>{value ?? 0}</Text>
+    <Text style={styles.statLabel}>{label}</Text>
+  </View>
+)
 
-    useEffect(()=>{
-        const fetchLastGame = async () =>{
-            const { data, error } = await supabase.from('player_stats').select(`*,
-            fixture: fixture_id (date_time_utc, home_team : home_team_id (club_name, logo, id), away_team: away_team_id (club_name, logo, id), league: league_id (name, logo), home_score, away_score)
-            `)
-            .eq('player_id', player?.id)
-            .order('fixture(date_time_utc)', { ascending: false })
-            .limit(1)
-
-            if(!error){
-                console.log(data[0])
-                setLastGame(data[0])
-                fetchReactionCount(data[0].id)
-            }
-        }
-        const fetchReactionCount = async (id) => {
-            const {data, count, error} = await supabase.from('social_player_reactions').select(`*`, {count: 'exact'}).eq('post_id', id)
-            if(!error){
-            setReactionCount(count) 
-            setReactions(data)
-            const reactionsObject = data.reduce((acc, val)=>{
-                const emoji = val.emoji.unified
-                if(!acc[emoji]){
-                  acc[emoji]= {emoji: val.emoji, count: 0}
-                }
-                acc[emoji].count++
-                return acc
-              },{})
-            const topReacts = Object.entries(reactionsObject) 
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 3)
-            .map(([reaction, count]) => ({ reaction, count }))
-
-            setTopReactions(topReacts)
-            }
-        }
-        fetchLastGame()
-
-    },[player])
-
-    const formatDate = (date) => {
-        const options = { day: 'numeric', month: 'short', year: 'numeric' };
-        return new Date(date).toLocaleDateString('en-US', options);
-      };
-      const getResult = () => {
-        
-        const isHome = lastGame?.fixture.home_team.id === lastGame?.team_id;
-
-        if (isHome) {
-            return lastGame?.fixture.home_score > lastGame?.fixture.away_score ? 'W' 
-                 : lastGame?.fixture.home_score < lastGame?.fixture.away_score ? 'L' 
-                 : 'D';
-        } else {
-            return lastGame?.fixture.home_score < lastGame?.fixture.away_score ? 'W' 
-                 : lastGame?.fixture.home_score > lastGame?.fixture.away_score ? 'L' 
-                 : 'D';
-        }
-    }
-  return (
-    <View className='rounded-xl flex flex-col bg-white p-3' style={{flex: Platform.OS === 'web' &&  1}}>
-        <Link href={{pathname: '/fixture/[id]', params: {id: lastGame?.fixture.fixture_id}}}>
-        <Text className='text-2xl font-supremeBold p-2'>Lastest Performance</Text>
-        </Link>
-        <View className='flex flex-row gap-3 p-2'>
-            <Image source={{uri: player?.photo}} style={{width:50, height:50}}/>
-            <View >
-                <Text className='font-supreme'>{player?.transfermarkt_name}</Text>
-                <View className='flex flex-row gap-2 p-2 ml-5'>
-                    <Image source={{uri:lastGame?.fixture.league.logo}} style={{height: 20, width:20}}/>
-
-                    <Text>{formatDate(lastGame?.fixture.date_time_utc)}</Text>
-
-                    <View className='flex flex-row gap-1'>
-                        <Image source={{uri:lastGame?.fixture.home_team.id !== lastGame?.team_id ? lastGame?.fixture.home_team.logo: lastGame?.fixture.away_team.logo}} style={{width:20, height:20}}/>
-                        <Text>vs {lastGame?.fixture.home_team.id !== lastGame?.team_id ? lastGame?.fixture.home_team.club_name: lastGame?.fixture.away_team.club_name}</Text>
-                    </View>
-                    <Text className='font-supremeBold text-center'>{getResult()} {lastGame?.fixture.home_team.id === lastGame?.fixture.team_id} {lastGame?.fixture.home_score}-{lastGame?.fixture.away_score}</Text>
-                </View>
-            </View>
-        </View>
-
-        <View>
-            <TouchableOpacity className="flex flex-row items-center justify-center gap-10 " 
-                    >
-                      
-                <View className='flex flex-row gap-2' >
-                    {topReactions.map(reaction =>(
-                        <Image source={{ uri: `${TWITTER_EMOJI_BASE}${reaction.count.emoji.image}`}} style={{width:20, height:20}}/>
-                    ))}
-                     <Text className='text-lg font-supremeBold ml-3'>{reactionCount}</Text>
-                </View>                        
-                   
-                <View className='flex flex-row items-center gap-2' >
-                    <FontAwesome name="comment" size={20} color="#A477C7" /><Text className='font-supreme'>{lastGame?.comment_count}</Text>
-                </View>
-
-                        
-            </TouchableOpacity>
-        </View>
-        <View className='border-b border-gray-300 p-2 w-full' />
-        <View className='mt-5 flex gap-3'>
-            <View className='flex flex-row items-center px-5'>
-                <View style={{flex:1}} className='items-center'>
-                 <View className=' rounded-full items-center justify-center w-full 'style={{paddingHorizontal: 2,
-                    backgroundColor: lastGame?.rating > 8.9 ? '#12CCFF' : lastGame?.rating > 6.9 ? '#00F70C' : lastGame?.rating > 5.9 ? '#FF9C00' : 'red',
-
-                    }}>
-                    <Text className='text-center font-supremeBold text-sm text-white'>{parseFloat(lastGame?.rating).toFixed(1)}</Text>
-                    
-                </View>
-                <Text>Rating</Text>
-                </View>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{lastGame?.minutes|| 0}</Text>
-                    <Text>Minutes</Text>
-                </View>
-                <View className='items-center'  style={{flex:1}}>
-                    <Text>{lastGame?.goals}</Text>
-                    <Text>Goals</Text>
-                </View>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{lastGame?.assist || 0}</Text>
-                    <Text>Assists</Text>
-                </View>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{lastGame?.shots_on_goal || 0} / {lastGame?.shots || 0}</Text>
-                    <Text>Shots</Text>
-                </View>
-            </View>
-            <View className='flex flex-row items-center px-5'>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{`${lastGame?.pass_accuracy || 0}/${lastGame?.passes || 0} (${parseFloat (((lastGame?.pass_accuracy || 0)/(lastGame?.passes || 0))*100).toFixed(2)}%)`} </Text>
-                    <Text>Pass %</Text>
-                </View>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{lastGame?.dribbles_successful || 0} / {lastGame?.dribbles_attempted || 0}</Text>
-                    <Text>Dribbles</Text>
-                </View>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{`${lastGame?.key_passes || 0}`} </Text>
-                    <Text>Key Passes</Text>
-                </View>
-                <View className='items-center' style={{flex:1}}>
-                    <Text>{lastGame?.duels_won || 0} - {lastGame?.duels || 0 - lastGame?.duels_won ||0}</Text>
-                    <Text>Duels W-L</Text>
-                </View>
-            </View>
-        </View>
+const StatSection = ({ title, children }) => (
+  <View style={styles.statSection}>
+    <Text style={styles.statSectionTitle}>{title}</Text>
+    <View style={styles.statRow}>
+      {children}
     </View>
+  </View>
+)
+
+// ─────────────────────────────────────────────────────────────────────────────
+export const PlayerLastGame = ({ player }) => {
+  const [lastGame, setLastGame] = useState(null)
+  const [topReactions, setTopReactions] = useState([])
+  const [reactionCount, setReactionCount] = useState(0)
+
+  useEffect(() => {
+    if (!player) return
+
+    const fetchLastGame = async () => {
+      const { data, error } = await supabase
+        .from('player_stats')
+        .select(`*,
+          fixture: fixture_id (
+            date_time_utc,
+            home_team: home_team_id (club_name, logo, id),
+            away_team: away_team_id (club_name, logo, id),
+            league: league_id (name, logo),
+            home_score, away_score
+          )`)
+        .eq('player_id', player.id)
+        .order('fixture(date_time_utc)', { ascending: false })
+        .limit(1)
+
+      if (!error && data[0]) {
+        setLastGame(data[0])
+        fetchReactions(data[0].id)
+      }
+    }
+
+    const fetchReactions = async (id) => {
+      const { data, count } = await supabase
+        .from('social_player_reactions')
+        .select('*', { count: 'exact' })
+        .eq('post_id', id)
+
+      if (data) {
+        setReactionCount(count)
+        const grouped = data.reduce((acc, val) => {
+          const key = val.emoji.unified
+          if (!acc[key]) acc[key] = { emoji: val.emoji, count: 0 }
+          acc[key].count++
+          return acc
+        }, {})
+
+        const top = Object.values(grouped)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3)
+
+        setTopReactions(top)
+      }
+    }
+
+    fetchLastGame()
+  }, [player?.id])
+
+  if (!lastGame) return null
+
+  const s = lastGame // shorthand
+  const result = getResult(lastGame)
+  const opponent = lastGame.fixture.home_team.id !== lastGame.team_id
+    ? lastGame.fixture.home_team
+    : lastGame.fixture.away_team
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+
+    const passAccuracyPct = parseFloat(((s.pass_accuracy || 0) / (s.passes || 1)) * 100).toFixed(2)
+    
+  const pct = (num, den) =>
+    den > 0 ? `${((num / den) * 100).toFixed(0)}%` : '0%'
+
+  return (
+    <View style={styles.container}>
+
+      {/* ── Header ── */}
+      <Link href={{ pathname: '/fixture/[id]', params: { id: lastGame.fixture_id } }}>
+        <Text style={styles.title}>Latest Performance</Text>
+      </Link>
+
+      {/* ── Player + match info ── */}
+      <View style={styles.playerRow}>
+        <Image source={{ uri: player?.photo }} style={styles.playerPhoto} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.playerName}>{player?.transfermarkt_name}</Text>
+          <View style={styles.matchMeta}>
+            <Image source={{ uri: lastGame.fixture.league.logo }} style={styles.leagueLogo} resizeMode="contain" />
+            <Text style={styles.metaText}>{formatDate(lastGame.fixture.date_time_utc)}</Text>
+            <Image source={{ uri: opponent.logo }} style={styles.leagueLogo} resizeMode="contain" />
+            <Text style={styles.metaText}>vs {opponent.club_name}</Text>
+            <View style={[styles.resultBadge, { backgroundColor: result === 'W' ? '#22c55e' : result === 'L' ? '#ef4444' : '#6b7280' }]}>
+              <Text style={styles.resultText}>
+                {result} {lastGame.fixture.home_score}-{lastGame.fixture.away_score}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* ── Reactions + comments ── */}
+      <View style={styles.reactRow}>
+        <View style={styles.reactEmojis}>
+          {topReactions.map((r, i) => (
+            <Image key={i} source={{ uri: `${TWITTER_EMOJI_BASE}${r.emoji.image}` }} style={styles.emoji} />
+          ))}
+          <Text style={styles.reactionCount}>{reactionCount}</Text>
+        </View>
+        <View style={styles.reactEmojis}>
+          <FontAwesome name="comment" size={18} color="#A477C7" />
+          <Text style={styles.metaText}>{s.comment_count ?? 0}</Text>
+        </View>
+      </View>
+
+      <View style={styles.divider} />
+
+     {/* ── Row 1: Rating, Minutes, Goals, Assists, Shots ── */}
+      <View style={styles.statRow}>
+        <View style={styles.statItem}>
+          <View style={[styles.ratingBadge, { backgroundColor: getRatingColor(s.rating) }]}>
+            <Text style={styles.ratingText}>{parseFloat(s.rating).toFixed(1)}</Text>
+          </View>
+          <Text style={styles.statLabel}>Rating</Text>
+        </View>
+        <StatItem label="Minutes"  value={s.minutes ?? 0} />
+        <StatItem label="Goals"    value={s.goals ?? 0} />
+        <StatItem label="Assists"  value={s.assist ?? 0} />
+        <StatItem label="Shots"    value={`${s.shots_on_goal ?? 0}/${s.shots ?? 0}`} />
+      </View>
+ 
+      {/* ── Row 2: Pass%, Dribbles, Key Passes, Duels ── */}
+      <View style={styles.statRow}>
+        <StatItem label="Pass %"     value={`${s.pass_accuracy ?? 0}/${s.passes ?? 0} `} />
+        <StatItem label="Dribbles"   value={`${s.dribbles_successful ?? 0}/${s.dribbles_attempted ?? 0}`} />
+        <StatItem label="Key Passes" value={s.key_passes ?? 0} />
+        <StatItem label="Duels W-L"  value={`${s.duels_won ?? 0}-${(s.duels ?? 0) - (s.duels_won ?? 0)}`} />
+      </View>
+      </View>
   )
 }
 
 export default PlayerLastGame
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginVertical: 8,
+    alignSelf: 'stretch',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  title: {
+    fontSize: 15,
+    fontFamily:'Supreme',
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+
+  // Player row
+  playerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  playerPhoto: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  playerName: {
+    fontSize: 14,
+        fontFamily:'Supreme',
+
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  matchMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  metaText: {
+    fontSize: 12,
+        fontFamily:'Supreme',
+
+    color: '#4b5563',
+  },
+  leagueLogo: {
+    width: 16,
+    height: 16,
+  },
+  resultBadge: {
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  resultText: {
+    color: '#fff',
+        fontFamily:'Supreme',
+
+    fontSize: 11,
+    fontWeight: '700',
+  },
+
+  // Reactions
+  reactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 10,
+  },
+  reactEmojis: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  emoji: {
+    width: 18,
+    height: 18,
+  },
+  reactionCount: {
+    fontSize: 13,
+        fontFamily:'Supreme',
+
+    fontWeight: '700',
+    marginLeft: 4,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    marginVertical: 10,
+  },
+
+  // Rating
+  ratingBadge: {
+    alignSelf: 'center',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  ratingText: {
+    color: '#fff',
+        fontFamily:'Supreme',
+
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  // Stat sections
+  statSection: {
+    marginBottom: 12,
+  },
+  statSectionTitle: {
+    fontSize: 12,
+        fontFamily:'Supreme',
+
+    fontWeight: '700',
+    color: '#A477C7',
+    paddingHorizontal: 4,
+    marginBottom: 4,
+  },
+  statRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  statItem: {
+    width: '20%',
+    paddingVertical: 6,
+    alignItems: 'center',
+    gap: 2,
+  },
+  statValue: {
+    fontSize: 14,
+        fontFamily:'Supreme',
+        paddingHorizontal: 12,
+    paddingVertical: 4,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: 10,
+        fontFamily:'Supreme',
+
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    color: '#6b7280',
+  },
+})

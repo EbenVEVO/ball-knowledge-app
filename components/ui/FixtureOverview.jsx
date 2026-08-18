@@ -1,11 +1,29 @@
-import { StyleSheet, Text, View, Platform, Image} from 'react-native'
+import { StyleSheet, Text, View, Platform, Image, Pressable, TouchableOpacity} from 'react-native'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
-import React from 'react'
+import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'expo-router';
+import { supabase } from '../../lib/supabase';
+import { isFixtureNotStarted, isFixtureLive } from '../../lib/matchStatus';
 
-export const FixtureOverview = ({fixture}) => {
+const TWITTER_EMOJI_BASE = "https://cdn.jsdelivr.net/npm/emoji-datasource-twitter/img/twitter/64/";
+
+const MissedPenaltyIcon = ({ size = 13 }) => (
+  <View style={{ width: size, height: size, borderRadius: size * 0.3, borderWidth: 1.5, borderColor: 'red', alignItems: 'center', justifyContent: 'center' }}>
+    <AntDesign name="close" size={size * 0.6} color="red" />
+  </View>
+)
+
+export const FixtureOverview = ({fixture, reactionCount = 0, hasReacted = false, topReactions = [], commentCount = 0, onReactionPress, onCommentPress}) => {
+  const [teamStandings, setTeamStandings] = useState([])
+  const [awayForm, setAwayForm] = useState([])
+  const [homeForm, setHomeForm] = useState([])
+
+  const reactionButtonRef = useRef(null)
+
     const formatDate = (date) => {
       const options = { day: 'numeric', month: 'short', year: 'numeric' };
       return new Date(date).toLocaleDateString('en-US', options);
@@ -15,7 +33,7 @@ export const FixtureOverview = ({fixture}) => {
       return new Date(date).toLocaleTimeString('en-US', options);
     }
 
-    const goalEvents = fixture?.events.filter(e => e.event_type === 'Goal')
+    const goalEvents = fixture?.events.filter(e => e.event_type === 'Goal' && e.comments !== 'Penalty Shootout')
 
     const groupGoalsByPlayer = (goals) => {
       const grouped = {};
@@ -39,37 +57,107 @@ export const FixtureOverview = ({fixture}) => {
     const awayRedCards = fixture?.events.filter(e => e.event_details === 'Red Card' && e.team_id === fixture.away_team_id)
     const homeRedCards = fixture?.events.filter(e => e.event_details === 'Red Card' && e.team_id === fixture.home_team_id)
 
+    const hasPenaltyShootout = fixture?.home_penalty != null && fixture?.away_penalty != null
+    const shootoutEvents = fixture?.events?.filter(e => e.comments === 'Penalty Shootout') ?? []
+    const getShootoutDots = (teamId) => shootoutEvents
+      .filter(e => e.team_id === teamId)
+      .sort((a, b) => a.id - b.id)
+      .map(e => e.event_details === 'Penalty' ? '#22c55e' : '#ef4444')
+    const homePenaltyDots = getShootoutDots(fixture?.home_team_id)
+    const awayPenaltyDots = getShootoutDots(fixture?.away_team_id)
+
     const isWeb = Platform.OS === 'web';
+    const getOrdinal = (n) => {
+      const num = Number(n);
+      const mod100 = num % 100;
+      if (mod100 >= 11 && mod100 <= 13) return `${num}th`;
+      switch (num % 10) {
+        case 1: return `${num}st`;
+        case 2: return `${num}nd`;
+        case 3: return `${num}rd`;
+        default: return `${num}th`;
+      }
+    };
 
+    useEffect(()=>{
+      const fetchStandings = async () => {
+          const {data} = await supabase.from('league_standings').select('*').eq('season_id', fixture?.season_id).in('club_id', [fixture?.home_team_id, fixture?.away_team_id])
+          if (data) {
+            setTeamStandings([data.filter(s=> s.club_id === fixture?.home_team_id)[0], data.filter(s=> s.club_id === fixture?.away_team_id)[0] ])
+
+      }
+}
+      const fetchForm = async ()=>{
+        const {data: home} = await supabase.from('fixtures')
+          .select(`*`)
+          .or(`home_team_id.eq.${fixture?.home_team_id},away_team_id.eq.${fixture?.home_team_id}`)
+          .eq('match_status', 'Match Finished')
+          .order('date_time_utc', { ascending: false })
+          .limit(5)
+        const {data: away} = await supabase.from('fixtures')
+          .select(`*`)
+          .or(`home_team_id.eq.${fixture?.away_team_id},away_team_id.eq.${fixture?.away_team_id}`)
+          .eq('match_status', 'Match Finished')
+          .order('date_time_utc', { ascending: false })
+          .limit(5)
+
+          if (away) setAwayForm(away)
+          if (home) setHomeForm(home)
+          
+      }
+      if (fixture?.competition?.type !== 'Cup') fetchStandings()
+      fetchForm()
+    },[fixture])
+
+    const handleReactionPress = () => {
+      if (Platform.OS === 'web') {
+        reactionButtonRef.current?.measureInWindow((x, y, width, height) => {
+          onReactionPress?.({ x, y, width, height })
+        })
+      } else {
+        onReactionPress?.()
+      }
+    }
+
+  const getResult = (fixture, teamId) => {
+    const isHome = fixture.home_team_id === teamId
+    const teamScore = isHome ? fixture.home_score : fixture.away_score
+    const opponentScore = isHome ? fixture.away_score : fixture.home_score
+
+    if (teamScore > opponentScore) return 'W'
+    if (teamScore < opponentScore) return 'L'
+    return 'D'
+  }
+
+const getResultColor = (result) => {
+  if (result === 'W') return '#22c55e'
+  if (result === 'L') return '#ef4444'
+  return '#6b7280'
+}
     return (
-      <View style={[styles.container]} className='flex flex-col bg-white'>
-
-        {/* Meta row: date, stadium, competition */}
+      <View style={[styles.container]} className='flex flex-col'>
         <View className='p-5 gap-5 flex flex-row items-center justify-center flex-wrap'>
           <View className='flex flex-row items-center gap-2'>
             <AntDesign name="calendar" size={15} color="black" />
-            <Text className='font-supreme'>{formatDate(fixture?.date_time_utc)}, {formatTime(fixture?.date_time_utc)}</Text>
+            <Text className='font-supremeBold'>{formatDate(fixture?.date_time_utc)}, {formatTime(fixture?.date_time_utc)}</Text>
           </View>
           <View className='flex flex-row items-center gap-2'>
             <MaterialIcons name="stadium" size={20} color="black" />
-            <Text className='font-supreme'>{fixture?.stadium_name}</Text>
+            <Text className='font-supremeBold'>{fixture?.stadium_name}</Text>
           </View>
           <Link href={{pathname: '/competition/[id]', params:{id: fixture?.competition.id}}}>
             <View className='flex flex-row items-center gap-2'>
               <Image source={{ uri: fixture?.competition.logo }} style={{width: 15, height: 15}} resizeMode='contain' />
-              <Text className='font-supreme'>{fixture?.round}</Text>
+              <Text className='font-supremeBold'>{fixture?.round}</Text>
             </View>
           </Link>
         </View>
 
         <View className='border-b border-gray-300 w-full' />
 
-        {/* Teams + Score row */}
         <View style={styles.teamsRow}>
-
-          {/* Home team */}
-          <Link href={{pathname: '/club/[id]', params:{id: fixture?.home_team.id}}}>
-            <View style={styles.teamHeader}>
+          <Link href={{pathname: '/club/[id]', params:{id: fixture?.home_team.id}}} asChild>
+            <Pressable style={styles.teamHeader}>
               <Image
                 source={{ uri: fixture?.home_team.logo }}
                 style={{ width: isWeb ? 100 : 50, height: isWeb ? 100 : 50 }}
@@ -82,22 +170,104 @@ export const FixtureOverview = ({fixture}) => {
               >
                 {fixture?.home_team.club_name}
               </Text>
-            </View>
+              <View className='flex flex-row gap-2'>
+              {homeForm.map((fix, idx) => (
+                <View key={idx} className='rounded-full' style={{width:10, height:10, 
+                backgroundColor: getResultColor(getResult(fix, fixture?.home_team_id)) 
+                }}>
+                </View>
+              ))}
+              </View>
+              {fixture?.competition?.type !== 'Cup' && teamStandings[0]?.rank && (
+                <Text className='text-center font-supreme text-lg'>
+                  {`(${getOrdinal(teamStandings[0]?.rank)})`}
+                </Text>
+              )}
+
+            </Pressable>
           </Link>
 
-          {/* Score (centered) */}
           <View style={styles.scoreBlock}>
+            {isFixtureNotStarted(fixture?.match_status) ?
             <Text className='font-supremeBold text-4xl'>
-              {fixture?.home_score} - {fixture?.away_score}
-            </Text>
-            <Text className='font-supreme text-sm' style={{color: 'gray'}}>
-              {fixture?.match_status}
-            </Text>
+                {formatTime(fixture?.date_time_utc)}
+              </Text>
+            :
+              <Text className='font-supremeBold text-4xl'>
+                {fixture?.home_score} - {fixture?.away_score}
+              </Text>
+            }
+            {isFixtureLive(fixture?.match_status) ?
+              <View className='flex flex-row items-center gap-1'>
+                <View style={styles.liveDot} />
+                <Text className='font-supremeBold text-sm' style={{color: '#ef4444'}}>
+                  {fixture?.match_status === 'Halftime' ? 'HT' : `${fixture?.minute ?? ''}'`}
+                </Text>
+              </View>
+            :
+              <Text className='font-supreme text-sm' style={{color: 'gray'}}>
+                {fixture?.match_status}
+              </Text>
+            }
+
+            {hasPenaltyShootout && (
+              <View style={{ alignItems: 'center', marginTop: 6, gap: 2 }}>
+                <Text className='font-supreme text-xs' style={{color: 'gray'}}>After Penalties</Text>
+                <Text className='font-supremeBold text-base'>
+                  {fixture.home_penalty} - {fixture.away_penalty}
+                </Text>
+                {homePenaltyDots.length > 0 && (
+                  <View className='flex flex-row gap-1' style={{marginTop: 2}}>
+                    {homePenaltyDots.map((color, idx) => (
+                      <View key={idx} className='rounded-full' style={{width: 8, height: 8, backgroundColor: color}} />
+                    ))}
+                  </View>
+                )}
+                {awayPenaltyDots.length > 0 && (
+                  <View className='flex flex-row gap-1'>
+                    {awayPenaltyDots.map((color, idx) => (
+                      <View key={idx} className='rounded-full' style={{width: 8, height: 8, backgroundColor: color}} />
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 10 }}>
+              <TouchableOpacity
+                ref={reactionButtonRef}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                onPress={handleReactionPress}
+              >
+                {topReactions.length > 0 ? (
+                  <View style={{ flexDirection: 'row', gap: 2 }}>
+                    {topReactions.map((reaction, index) => (
+                      <Image
+                        key={index}
+                        source={{ uri: `${TWITTER_EMOJI_BASE}${reaction.emoji.image}` }}
+                        style={{ width: 16, height: 16 }}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  <Entypo name='emoji-happy' size={18} color={hasReacted ? '#A477C7' : 'black'} />
+                )}
+                <Text className='font-supreme text-xs' style={hasReacted ? { color: '#A477C7' } : undefined}>{reactionCount}</Text>
+              </TouchableOpacity>
+
+              <Pressable
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                onPress={onCommentPress}
+              >
+                <FontAwesome name='comment' size={16} color='#A477C7' />
+                <Text className='font-supreme text-xs'>{commentCount}</Text>
+              </Pressable>
+            </View>
+
           </View>
 
-          {/* Away team */}
-          <Link href={{pathname: '/club/[id]', params:{id: fixture?.away_team.id}}}>
-            <View style={styles.teamHeader}>
+          <Link href={{pathname: '/club/[id]', params:{id: fixture?.away_team.id}}} asChild>
+            <Pressable style={styles.teamHeader}>
               <Image
                 source={{ uri: fixture?.away_team.logo }}
                 style={{ width: isWeb ? 100 : 50, height: isWeb ? 100 : 50 }}
@@ -110,52 +280,71 @@ export const FixtureOverview = ({fixture}) => {
               >
                 {fixture?.away_team.club_name}
               </Text>
+              <View className='flex flex-row gap-2'>
+              {awayForm.map((fix, idx) => (
+                <View key={idx} className='rounded-full' style={{width:10, height:10, 
+                backgroundColor: getResultColor(getResult(fix, fixture?.away_team_id)) 
+                }}>
+                </View>
+              ))}
             </View>
+              {fixture?.competition?.type !== 'Cup' && teamStandings[1]?.rank && (
+                <Text className='text-center font-supreme text-lg'>
+                  {`(${getOrdinal(teamStandings[1]?.rank)})`}
+                </Text>
+              )}
+            </Pressable>
           </Link>
 
         </View>
-
-        {/* Goals & Cards row — separate from the team headers so it has full width */}
+        {!isFixtureNotStarted(fixture?.match_status) &&
         <View style={styles.eventsRow}>
 
-          {/* Home events */}
           <View style={styles.eventsColumn}>
             {homeGoals.map((goalGroup, index) => (
               <View key={index} style={styles.eventItem}>
-                <MaterialIcons name="sports-soccer" size={13} color="black" />
-                <Text className='font-supreme text-xs' style={styles.eventText}>
-                  {goalGroup.player_name} {goalGroup.times.join(', ')}'
+                {goalGroup.event_details === 'Missed Penalty'
+                  ? <MissedPenaltyIcon size={13} />
+                  : <MaterialIcons name="sports-soccer" size={13} color="black" />}
+                <Text className='font-supreme text-sm' style={styles.eventText}>
+                  {goalGroup.player_name}
+                  {goalGroup.event_details === 'Penalty' ? ' (P)' : ''}
+                  {' '}{goalGroup.times.join(', ')}'
                   {goalGroup.event_details === 'Own Goal' ? ' (OG)' : ''}
+                  {goalGroup.event_details === 'Missed Penalty' ? ' (pen missed)' : ''}
                 </Text>
               </View>
             ))}
             {homeRedCards.map((card, index) => (
               <View key={index} style={styles.eventItem}>
                 <View style={styles.redCard}/>
-                <Text className='font-supreme text-xs' style={styles.eventText}>
+                <Text className='font-supreme text-sm' style={styles.eventText}>
                   {card.player_name} {card.time_elapsed}{card.time_extra ? `+${card.time_extra}` : ''}'
                 </Text>
               </View>
             ))}
           </View>
 
-          {/* Spacer so columns don't overlap score area */}
           <View style={styles.eventsSpacer} />
 
-          {/* Away events */}
           <View style={[styles.eventsColumn, styles.eventsColumnRight]}>
             {awayGoals.map((goalGroup, index) => (
               <View key={index} style={[styles.eventItem, styles.eventItemRight]}>
-                <Text className='font-supreme text-xs' style={styles.eventText}>
-                  {goalGroup.player_name} {goalGroup.times.join(', ')}'
+                <Text className='font-supreme text-sm' style={styles.eventText}>
+                  {goalGroup.player_name}
+                  {goalGroup.event_details === 'Penalty' ? ' (P)' : ''}
+                  {' '}{goalGroup.times.join(', ')}'
                   {goalGroup.event_details === 'Own Goal' ? ' (OG)' : ''}
+                  {goalGroup.event_details === 'Missed Penalty' ? ' (pen missed)' : ''}
                 </Text>
-                <MaterialIcons name="sports-soccer" size={13} color="black" />
+                {goalGroup.event_details === 'Missed Penalty'
+                  ? <MissedPenaltyIcon size={13} />
+                  : <MaterialIcons name="sports-soccer" size={13} color="black" />}
               </View>
             ))}
             {awayRedCards.map((card, index) => (
               <View key={index} style={[styles.eventItem, styles.eventItemRight]}>
-                <Text className='font-supreme text-xs' style={styles.eventText}>
+                <Text className='font-supreme text-sm' style={styles.eventText}>
                   {card.player_name} {card.time_elapsed}{card.time_extra ? `+${card.time_extra}` : ''}'
                 </Text>
                 <View style={styles.redCard}/>
@@ -164,6 +353,7 @@ export const FixtureOverview = ({fixture}) => {
           </View>
 
         </View>
+        }
 
       </View>
     )
@@ -175,7 +365,6 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: Platform.select({ ios: 0, android: 0, web: 12, default: 0 }),
   },
-  // Row that holds home | score | away
   teamsRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,6 +386,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     minWidth: 90,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#ef4444',
   },
   // Row that holds the goal/card lists
   eventsRow: {

@@ -1,5 +1,6 @@
 import { View, Text, Platform, ScrollView } from 'react-native'
 import React from 'react'
+import { Tabs } from 'react-native-collapsible-tab-view'
 import MatchStats from '../ui/MatchStats'
 import DefenseStats from '../ui/DefenseStats'
 import DuelStats from '../ui/DuelStats'
@@ -8,7 +9,7 @@ import FixturePlayerStats from '../ui/FixturePlayerStats'
 const FixtureStats = ({fixture}) => {
   return (
     <>
-   {Platform.OS === 'web' ? <View>
+   {Platform.OS === 'web' ? <ScrollView style={{flex: 1}}>
       <MatchStats fixture={fixture}/>
       <View className='flex flex-row p-5 gap-5'>
         <View style={{flex:1}}>
@@ -21,10 +22,10 @@ const FixtureStats = ({fixture}) => {
       <View className=' p-5 '>
         <FixturePlayerStats fixture={fixture}/>
       </View>
-    </View>
+    </ScrollView>
 
     :
-    <ScrollView
+    <Tabs.ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       style={{flex: 1}}
     >
@@ -34,7 +35,7 @@ const FixtureStats = ({fixture}) => {
       <DuelStats fixture={fixture}/>
       <FixturePlayerStats fixture={fixture}/>
       </View>
-    </ScrollView>
+    </Tabs.ScrollView>
     }
     
     </>
